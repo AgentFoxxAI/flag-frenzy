@@ -526,7 +526,7 @@ function endRound(){
   $("btnSumNext").textContent=hasBonus?"🎁 Bonus round ➜":(S.mode==="two"&&S.cur<1?"Next player ➜":(S.mode==="practice"?"Done ➜":"See results ➜"));
  }
  $("btnSumNext").disabled=false;
- if(S.mode==="online"&&NET){NET.done=true;netTrack();netCheckResults()}
+ if(S.mode==="online"&&NET){NET.done=true;netSendFinal();netCheckResults()}
  showScreen("s-summary");
 }
 $("btnSumNext").onclick=()=>{sfx.tap();if(S.mode!=="practice"&&S.mode!=="blitz"&&S.mode!=="online"&&S.settings.bonus!=="off")startBonus();else afterPlayer()};
@@ -694,31 +694,57 @@ async function getSB(){await loadSupabase();if(!SB)SB=window.supabase.createClie
 const CODE_CHARS="BCDFGHJKLMNPQRSTVWXZ23456789";
 const makeCode=()=>Array.from({length:4},()=>CODE_CHARS[Math.floor(Math.random()*CODE_CHARS.length)]).join("");
 function loadSupabase(){return new Promise((res,rej)=>{if(window.supabase)return res();const s=document.createElement("script");s.src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0/dist/umd/supabase.js";s.onload=()=>res();s.onerror=()=>rej(new Error("load"));document.head.appendChild(s)})}
-function myMeta(){const p=S.players[0];return {id:NET.id,did:DID,name:playerName(0),av:p.avatar.type==="hist"?p.avatar.id:null,host:NET.host,started:NET.started,seed:NET.seed,cfg:NET.cfg,score:R?R.score:0,correct:R?R.correct:0,wrong:R?R.wrong:0,n:R?R.seen.length:0,done:NET.done,ts:Date.now()}}
+// NETWORK DESIGN: Supabase presence is rate-limited hard (about 5 updates, then the server closes the channel),
+// so presence is tracked ONCE per connection and only says "I am in this room". Everything that changes
+// (start signal, scores, finish) travels as broadcast messages, which are fire-and-forget, so they are repeated.
+function whoAmI(){const p=S.players[0];return {id:NET.id,did:DID,name:playerName(0),av:p.avatar.type==="hist"?p.avatar.id:null,cav:p.avatar.type==="custom",host:NET.host,cfg:NET.host?NET.cfg:null}}
+function myMeta(){return {...whoAmI(),started:NET.started,seed:NET.seed,cfg:NET.cfg,score:R?R.score:0,correct:R?R.correct:0,wrong:R?R.wrong:0,n:R?R.seen.length:0,done:NET.done,ts:Date.now()}}
+function netSubscribe(){
+ const ch=NET.sb.channel("ff-"+NET.code,{config:{presence:{key:NET.id}}});NET.ch=ch;
+ ch.on("presence",{event:"sync"},netOnSync);
+ ch.on("broadcast",{event:"state"},m=>{const p=m&&m.payload;if(!NET||!p||p.id===NET.id)return;if(!NET.live||(p.ts||0)>=(NET.live.ts||0)){NET.live=p;NET.liveAt=Date.now();netOnSync()}});
+ ch.on("broadcast",{event:"needav"},m=>{const p=m&&m.payload;if(!NET||!p||p.id===NET.id||!NET.myPic)return;ch.send({type:"broadcast",event:"avatar",payload:{id:NET.id,data:NET.myPic}})});
+ ch.on("broadcast",{event:"avatar"},m=>{const p=m&&m.payload;if(!NET||!p||p.id===NET.id)return;if(typeof p.data==="string"&&p.data.startsWith("data:image/jpeg;base64,")&&p.data.length<60000){NET.oppPic=p.data;renderLobby();renderOppHud()}});
+ ch.subscribe(async status=>{
+  if(!NET||NET.ch!==ch)return;
+  if(status==="SUBSCRIBED"){NET.retries=0;try{await ch.track({...whoAmI(),ts:Date.now()})}catch(e){}netSend();if(!NET.started&&!NET.shown){NET.shown=true;showLobby()}}
+  else if(status==="CLOSED"||status==="CHANNEL_ERROR"||status==="TIMED_OUT"){
+   // dropped connection: rejoin quietly a few times so a Wi-Fi blip does not end the duel
+   if(NET.leaving)return;NET.retries=(NET.retries||0)+1;
+   if(NET.retries<=5){setTimeout(()=>{if(NET&&NET.ch===ch&&!NET.leaving){try{NET.sb.removeChannel(ch)}catch(e){}netSubscribe()}},1200*NET.retries)}
+   else{$("onlineStatus").textContent="Connection problem. Check the Wi-Fi and try again.";$("lobbyStatus").textContent="Connection lost. Leave the room and try again."}
+  }
+ });
+}
 async function netJoin(code,host,calling){
  $("onlineStatus").textContent="Connecting…";
  try{await getSB()}catch(e){$("onlineStatus").textContent="Couldn't load the online part. Check the Wi-Fi and try again.";return}
  if(NET)netLeave(true);
  const id=Math.random().toString(36).slice(2,10);
- NET={id,code,host,started:false,seed:null,cfg:host?makeCfg():null,done:false,opp:null,lastOpp:null,hadOpp:false,oppLeft:false,oppDone:false,sb:SB,ch:null,calling:calling||null,callCh:null,callT:null};
- NET.ch=NET.sb.channel("ff-"+code,{config:{presence:{key:id}}});
- NET.ch.on("presence",{event:"sync"},netOnSync);
- NET.ch.subscribe(async status=>{
-  if(!NET)return;
-  if(status==="SUBSCRIBED"){await netTrack();showLobby()}
-  else if(status==="CHANNEL_ERROR"||status==="TIMED_OUT"){$("onlineStatus").textContent="Connection problem. Check the Wi-Fi and try again.";$("lobbyStatus").textContent="Connection lost. Leave the room and try again."}
- });
+ NET={id,code,host,started:false,seed:null,cfg:host?makeCfg():null,done:false,opp:null,lastOpp:null,live:null,liveAt:0,hadOpp:false,oppLeft:false,oppDone:false,sb:SB,ch:null,calling:calling||null,callCh:null,callT:null,hb:null,retries:0,shown:false,leaving:false};
+ makeSmallPic();netSubscribe();
 }
-async function netTrack(){if(!NET||!NET.ch)return;try{await NET.ch.track(myMeta())}catch(e){}}
-const netSync=()=>{if(NET&&NET.started)netTrack()};
-function netOpp(){if(!NET||!NET.ch)return null;const st=NET.ch.presenceState();for(const k in st){if(k===NET.id)continue;const m=st[k][0];if(m)return m}return null}
+function netSend(){if(!NET||!NET.ch)return;try{NET.ch.send({type:"broadcast",event:"state",payload:myMeta()})}catch(e){}}
+const netSync=()=>{if(NET&&NET.started)netSend()};
+setInterval(()=>{if(NET&&NET.started)netOnSync()},3000);
+function netHeartbeat(on){if(!NET)return;clearInterval(NET.hb);NET.hb=on?setInterval(netSend,2500):null}
+function netSendFinal(){let n=0;const go=()=>{if(!NET||!NET.done)return;netSend();if(++n<8)setTimeout(go,1200)};go()}
+function makeSmallPic(){const av=S.players[0].avatar;if(!NET||av.type!=="custom")return;const im=new Image();im.onload=()=>{const c=document.createElement("canvas");c.width=c.height=96;c.getContext("2d").drawImage(im,0,0,96,96);if(NET)NET.myPic=c.toDataURL("image/jpeg",.7)};im.src=av.data}
+function netOpp(){if(!NET||!NET.ch)return null;let who=null;
+ try{const st=NET.ch.presenceState();for(const k in st){if(k===NET.id)continue;for(const m of st[k]){if(m&&(!who||(m.ts||0)>(who.ts||0)))who=m}}}catch(e){}
+ const l=NET.live,liveFresh=l&&Date.now()-NET.liveAt<9000;
+ if(!who&&!liveFresh)return null;               // not in the room and silent for 9s: gone
+ return {...(who||{}),...(l&&(!who||l.id===who.id||!who.id)?l:{})}}  // identity from presence, numbers from the newest broadcast
 function netOnSync(){
- if(!NET)return;const opp=netOpp();NET.opp=opp;if(opp){NET.hadOpp=true;NET.lastOpp=opp;if(opp.done)NET.oppDone=true}else if(NET.hadOpp&&NET.started)NET.oppLeft=true;
+ if(!NET)return;const opp=netOpp();NET.opp=opp;
+ if(opp&&!NET.hadOpp)setTimeout(netSend,300);
+ if(opp){NET.hadOpp=true;NET.oppLeft=false;NET.lastOpp={...(NET.lastOpp||{}),...opp};if(opp.done)NET.oppDone=true}else if(NET.hadOpp&&NET.started)NET.oppLeft=true;
+ if(opp&&opp.cav&&!NET.oppPic&&(!NET.askedAt||Date.now()-NET.askedAt>3000)){NET.askedAt=Date.now();try{NET.ch.send({type:"broadcast",event:"needav",payload:{id:NET.id}})}catch(e){}}
  renderLobby();renderOppHud();
  if(!NET.started&&!NET.host&&opp&&opp.host&&opp.started&&opp.seed!=null){NET.started=true;NET.seed=opp.seed;NET.cfg=opp.cfg;Object.assign(S.settings,opp.cfg||{});renderHome();netStartRound()}
  if(NET.done)netCheckResults();
 }
-function avatarFor(m){return m&&m.av&&AVATARS.find(a=>a.id===m.av)?{type:"hist",id:m.av}:{type:"hist",id:"amelia"}}
+function avatarFor(m){if(m&&m.cav&&NET&&NET.oppPic)return {type:"custom",data:NET.oppPic};return m&&m.av&&AVATARS.find(a=>a.id===m.av)?{type:"hist",id:m.av}:{type:"hist",id:"amelia"}}
 function showLobby(){$("lobbyCode").textContent=NET.code;$("btnLobbyStart").hidden=!NET.host;$("lobbyHint").textContent=NET.calling?`Calling ${NET.calling.name}… They need Flag Frenzy open on their screen. Or just tell them the code.`:(NET.host?"Tell your opponent this code. They tap Online Duel → Join a room.":"You're in! Waiting for the host to start.");renderLobby();showScreen("s-lobby")}
 function renderLobby(){
  if(!NET||NET.started)return;const opp=NET.opp;
@@ -730,10 +756,10 @@ function renderLobby(){
  const fb=$("btnSaveFriend"),canF=!!(opp&&opp.did&&!S.friends.some(f=>f.did===opp.did));fb.hidden=!canF;if(canF){fb.textContent=`⭐ Save ${opp.name||"them"} as a friend`;fb.onclick=()=>{saveFriend(opp);renderLobby()}}
  $("lobbyStatus").textContent=opp?(NET.host?"Both players are here. Hit Start!":"Waiting for the host to start…"):(NET.host?"Waiting for your opponent to join…":"Nobody else is here yet. Double-check the code.");
 }
-$("btnLobbyStart").onclick=async()=>{if(!NET||!NET.host||!NET.opp)return;NET.seed=Math.floor(Math.random()*2147483647);NET.cfg=makeCfg();NET.started=true;await netTrack();netStartRound()};
+$("btnLobbyStart").onclick=async()=>{if(!NET||!NET.host||!NET.opp)return;NET.seed=Math.floor(Math.random()*2147483647);NET.cfg=makeCfg();NET.started=true;let k=0;const announce=()=>{if(!NET||!NET.started)return;netSend();if(++k<6)setTimeout(announce,700)};announce();netStartRound()};
 $("btnLobbyLeave").onclick=()=>{netLeave(true);renderHome();showScreen("s-home")};
-function netStartRound(){S.mode="online";S.order=[0];S.cur=0;S.results=[];sfx.tap();startRound()}
-function netLeave(){if(!NET)return;try{clearInterval(NET.callT);if(NET.callCh)NET.sb.removeChannel(NET.callCh);NET.ch.untrack();NET.sb.removeChannel(NET.ch)}catch(e){}NET=null;$("oppHud").hidden=true}
+function netStartRound(){S.mode="online";S.order=[0];S.cur=0;S.results=[];sfx.tap();netHeartbeat(true);startRound()}
+function netLeave(){if(!NET)return;NET.leaving=true;clearInterval(NET.hb);try{clearInterval(NET.callT);if(NET.callCh)NET.sb.removeChannel(NET.callCh);NET.ch.untrack();NET.sb.removeChannel(NET.ch)}catch(e){}NET=null;$("oppHud").hidden=true}
 function renderOppHud(){
  if(!NET||!NET.started){$("oppHud").hidden=true;return}
  const o=NET.opp||NET.lastOpp;$("oppHud").hidden=false;
@@ -747,7 +773,8 @@ function netCheckResults(){
  else{$("btnSumNext").disabled=true;$("btnSumNext").textContent="⏳ Waiting for opponent to finish…"}
 }
 function showResultsOnline(){
- const opp=(NET&&(NET.opp||NET.lastOpp))||{name:"Opponent",score:0,correct:0,wrong:0};
+ const fresh=NET?netOpp():null;const cands=[fresh,NET&&NET.opp,NET&&NET.lastOpp,NET&&NET.live].filter(Boolean);
+ const opp=cands.sort((a,b)=>(b.ts||0)-(a.ts||0))[0]||{name:"Opponent",score:0,correct:0,wrong:0};
  S.players[1]={name:opp.name||"Opponent",avatar:avatarFor(opp)};
  S.results=[S.results[0],{player:1,score:opp.score||0,correct:opp.correct||0,wrong:opp.wrong||0,passed:0,bonus:0}];
  const keep=S.mode;S.mode="two";showResults();S.mode=keep;
