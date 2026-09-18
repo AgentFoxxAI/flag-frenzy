@@ -164,6 +164,7 @@ details.credits li{break-inside:avoid;margin-bottom:3px}
 .spot{position:absolute;inset:0;width:100%;height:100%;display:none}
 .spot.on{display:block}
 .spot circle{transition:r .7s ease-out}
+.flagbox.noanim .tile,.flagbox.noanim .spot circle,.flagbox.noanim img,.flagbox.noanim .inner{transition:none!important}
 .fx-wobble .flagbox{animation:wobble 1.1s ease-in-out infinite}
 @keyframes wobble{0%{transform:rotate(-7deg) translateX(-10px) skewX(3deg)}25%{transform:rotate(5deg) translateY(-8px)}50%{transform:rotate(-4deg) translateX(10px) skewX(-4deg)}75%{transform:rotate(8deg) translateY(6px)}100%{transform:rotate(-7deg) translateX(-10px) skewX(3deg)}}
 .fx-wobble .stage{animation:queasy 2.6s linear infinite}
@@ -277,6 +278,9 @@ td .avatar{width:38px;height:38px;border-width:2px}td .avatar .em{font-size:1.15
 .oppinfo{color:var(--muted);font-weight:800;font-size:.85rem;flex:1}
 .oppscore{font-family:var(--font-display);font-weight:700;font-size:1.6rem;color:var(--purple);font-variant-numeric:tabular-nums}
 @media (max-width:480px){.onlinegrid{grid-template-columns:1fr}.roomcode{font-size:3.2rem}}
+.duelcfg{background:var(--surface-2);border-radius:16px;padding:12px;margin:0 0 12px}
+.duelcfg .cfgline{font-family:var(--font-display);font-weight:600;font-size:1.05rem;margin:4px 0}
+.duelcfg p{margin:4px 0 0;font-weight:700;font-size:.85rem}
 .fchip{display:inline-flex;align-items:center}
 .fchip .fx{border:0;background:none;color:var(--muted);font-weight:800;font-size:1rem;padding:4px 8px 4px 4px}
 .flash{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);border-radius:999px;padding:10px 18px;font-family:var(--font-display);font-weight:700;z-index:70;display:none;box-shadow:var(--shadow)}
@@ -320,6 +324,7 @@ td .avatar{width:38px;height:38px;border-width:2px}td .avatar .em{font-size:1.15
 
   <div class="set online" id="onlinePanel" hidden>
     <div class="head"><span class="label">🌐 Play against someone on another tablet</span></div>
+    <div class="duelcfg"><div class="label">Duel settings if you create the room</div><div class="cfgline" id="duelCfg"></div><p class="muted">Whoever creates the room (or challenges a friend) decides these for both players. Change them in the cards above. If you join someone else's room, their settings are used and yours are ignored.</p></div>
     <div class="onlinegrid">
       <div class="onlinecol"><b>Start a room</b><p class="muted">You pick the settings below. Your friend joins with the code.</p><button class="btn green" id="btnCreateRoom">🏠 Create a room</button></div>
       <div class="onlinecol"><b>Join a room</b><p class="muted">Type the 4-letter code from the other tablet.</p><div class="row" style="gap:8px"><input id="joinCode" maxlength="4" placeholder="CODE" autocapitalize="characters" autocomplete="off" aria-label="Room code"><button class="btn" id="btnJoinRoom">Join ➜</button></div></div>
@@ -397,6 +402,7 @@ td .avatar{width:38px;height:38px;border-width:2px}td .avatar .em{font-size:1.15
     <div class="roomcode" id="lobbyCode">ABCD</div>
     <p class="muted" style="font-weight:800;margin:4px 0 14px" id="lobbyHint">Tell your opponent this code. They tap Online Duel → Join a room.</p>
     <div class="lobbyplayers" id="lobbyPlayers"></div>
+    <div class="duelcfg" style="text-align:left"><div class="label">Duel settings, chosen by the host</div><div class="cfgline" id="lobbyCfg"></div><p class="muted" id="lobbyCfgNote"></p></div>
     <div class="lvl-desc" id="lobbyStatus"></div>
     <div class="actions" style="margin-top:16px">
       <button class="btn accent big" id="btnLobbyStart" hidden>▶ Start the duel</button>
