@@ -1,0 +1,1523 @@
+<meta charset="utf-8">
+<title>Flag Frenzy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@600;700;800&display=swap">
+<style>
+:root{
+  --bg:#E9F4FF; --surface:#FFFFFF; --surface-2:#F3F8FD; --ink:#1B2A41; --muted:#5C6E86; --line:#CBDDF0;
+  --accent:#FF5E5B; --accent-deep:#D9413F; --sun:#FFD23F; --sun-deep:#E0B31C; --green:#2BB673; --green-deep:#1E8F58;
+  --blue:#2D7DD2; --blue-deep:#1F5FA3; --purple:#7B5CFF; --purple-deep:#5C3FD6;
+  --shadow:0 10px 30px rgba(27,42,65,.10);
+  --font-display:"Fredoka","Nunito","Segoe UI",system-ui,sans-serif;
+  --font-body:"Nunito","Segoe UI",system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0D1B2E; --surface:#16283F; --surface-2:#1E3350; --ink:#F2F6FB; --muted:#A8B9CF; --line:#2E4766; --shadow:0 10px 30px rgba(0,0,0,.35);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0D1B2E; --surface:#16283F; --surface-2:#1E3350; --ink:#F2F6FB; --muted:#A8B9CF; --line:#2E4766; --shadow:0 10px 30px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:16px;line-height:1.4;
+  background-image:radial-gradient(circle at 10% 10%,rgba(255,210,63,.22),transparent 40%),radial-gradient(circle at 90% 90%,rgba(45,125,210,.18),transparent 45%);
+  -webkit-tap-highlight-color:transparent;}
+button{font-family:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible,select:focus-visible,[tabindex]:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
+.wrap{max-width:760px;margin:0 auto;padding-block:16px 32px;padding-inline:16px}
+h1,h2,h3{font-family:var(--font-display);margin:0;text-wrap:balance;line-height:1.1}
+.screen{display:none}
+.screen.on{display:block}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:18px;padding:14px 22px;font-family:var(--font-display);font-weight:700;font-size:1.15rem;color:#fff;background:var(--blue);box-shadow:0 5px 0 var(--blue-deep);transition:transform .08s,box-shadow .08s;text-decoration:none;user-select:none}
+.btn:active{transform:translateY(4px);box-shadow:0 1px 0 var(--blue-deep)}
+.btn.accent{background:var(--accent);box-shadow:0 5px 0 var(--accent-deep)}.btn.accent:active{box-shadow:0 1px 0 var(--accent-deep)}
+.btn.sun{background:var(--sun);color:#3A2E00;box-shadow:0 5px 0 var(--sun-deep)}.btn.sun:active{box-shadow:0 1px 0 var(--sun-deep)}
+.btn.green{background:var(--green);box-shadow:0 5px 0 var(--green-deep)}.btn.green:active{box-shadow:0 1px 0 var(--green-deep)}
+.btn.ghost{background:var(--surface);color:var(--ink);box-shadow:0 5px 0 var(--line)}.btn.ghost:active{box-shadow:0 1px 0 var(--line)}
+.btn.big{font-size:1.5rem;padding:18px 34px;border-radius:24px}
+.btn.sm{font-size:.95rem;padding:9px 14px;border-radius:12px;box-shadow:0 3px 0 var(--blue-deep)}
+.btn.sm.ghost{box-shadow:0 3px 0 var(--line)}
+.btn.sm.accent{box-shadow:0 3px 0 var(--accent-deep)}
+.btn.sm.green{box-shadow:0 3px 0 var(--green-deep)}
+.btn[disabled]{opacity:.5;pointer-events:none}
+.row{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.center{text-align:center}
+.card{background:var(--surface);border-radius:22px;padding:18px;box-shadow:var(--shadow)}
+.label{font-family:var(--font-display);font-weight:600;font-size:.8rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.muted{color:var(--muted)}
+/* HOME */
+.hero{display:flex;align-items:center;gap:16px;margin-bottom:18px}
+.hero .globe{font-size:3.6rem;line-height:1;animation:bob 3s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0) rotate(-6deg)}50%{transform:translateY(-6px) rotate(6deg)}}
+.hero h1{font-size:2.8rem;letter-spacing:-.01em}
+.hero h1 span{color:var(--accent)}
+.hero p{margin:4px 0 0;color:var(--muted);font-weight:700}
+.modes{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
+.mode{border:3px solid var(--line);background:var(--surface);border-radius:18px;padding:12px 8px;font-family:var(--font-display);font-weight:600;font-size:1rem;color:var(--ink);display:flex;flex-direction:column;align-items:center;gap:4px}
+.mode .ic{font-size:1.8rem}
+.mode.on{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,var(--surface))}
+.players{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+.players.solo{grid-template-columns:1fr}
+.pcard{background:var(--surface);border-radius:22px;padding:14px;box-shadow:var(--shadow);display:flex;flex-direction:column;align-items:center;gap:10px}
+.pcard .who{font-family:var(--font-display);font-weight:600;color:var(--muted);font-size:.85rem;letter-spacing:.06em;text-transform:uppercase}
+.avatar{width:96px;height:96px;border-radius:50%;position:relative;border:4px solid #fff;box-shadow:0 6px 18px rgba(0,0,0,.18);flex:none;overflow:hidden;background:#dfe8f2}
+.avatar .em{position:absolute;inset:0;display:grid;place-items:center;font-size:3rem}
+.avatar img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 25%;border-radius:50%}
+.avatar.sm{width:56px;height:56px;border-width:3px}.avatar.sm .em{font-size:1.7rem}
+.avatar.xl{width:150px;height:150px}.avatar.xl .em{font-size:4.8rem}
+.avatar.locked{filter:grayscale(1);opacity:.45}
+.avbtn{border:0;background:none;padding:0;border-radius:50%}
+.avname{font-family:var(--font-display);font-weight:600;font-size:1rem}
+.pcard input,.pcard select{width:100%;border:2px solid var(--line);border-radius:14px;padding:10px 12px;font-family:var(--font-display);font-size:1.05rem;font-weight:600;text-align:center;background:var(--surface-2);color:var(--ink)}
+.pcard select{font-size:.95rem;padding:8px 10px}
+.pcard .mini-row{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+.settings{display:grid;gap:14px;margin-bottom:18px}
+.set{background:var(--surface);border-radius:22px;padding:14px 16px;box-shadow:var(--shadow)}
+.set .head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap}
+.set .val{font-family:var(--font-display);font-weight:700;color:var(--blue);font-size:1.1rem;font-variant-numeric:tabular-nums}
+input[type=range]{width:100%;accent-color:var(--accent);height:34px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:2px solid var(--line);background:var(--surface-2);color:var(--ink);border-radius:999px;padding:8px 12px;font-family:var(--font-display);font-weight:600;font-size:.95rem}
+.chip.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.lvl-desc{margin-top:10px;color:var(--muted);font-weight:700;font-size:.95rem}
+.toggle{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 0}
+.switch{position:relative;width:54px;height:30px;border-radius:999px;background:var(--line);border:0;flex:none;transition:background .2s}
+.switch::after{content:"";position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;transition:left .2s;box-shadow:0 2px 4px rgba(0,0,0,.25)}
+.switch.on{background:var(--green)}.switch.on::after{left:27px}
+.start-row{display:flex;flex-direction:column;align-items:center;gap:14px}
+.links{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.sub{margin:10px 0 6px}
+details.credits{margin-top:28px;color:var(--muted);font-size:.8rem;font-weight:700}
+details.credits summary{cursor:pointer;font-family:var(--font-display)}
+details.credits ul{margin:8px 0 0;padding-left:18px;columns:2;column-gap:18px}
+details.credits li{break-inside:avoid;margin-bottom:3px}
+/* MODALS */
+.modal{position:fixed;inset:0;background:rgba(10,20,35,.6);display:none;align-items:flex-end;justify-content:center;z-index:50}
+.modal.on{display:flex}
+.modal.mid{align-items:center;padding:16px;z-index:65}
+.sheet{background:var(--bg);width:100%;max-width:760px;max-height:92%;border-radius:26px 26px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom,0px));overflow:auto}
+.dialog{background:var(--surface);border-radius:24px;padding:22px;max-width:420px;width:100%;box-shadow:var(--shadow);text-align:center}
+.dialog h2{font-size:1.6rem;margin-bottom:6px}
+.dialog p{margin:0 0 16px;font-weight:700;color:var(--muted)}
+.avgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:10px;margin:12px 0}
+.avopt{border:3px solid transparent;background:var(--surface);border-radius:18px;padding:8px 4px;display:flex;flex-direction:column;align-items:center;gap:6px;font-family:var(--font-display);font-weight:600;font-size:.78rem;color:var(--ink);text-align:center;line-height:1.1;position:relative}
+.avopt .avatar{width:60px;height:60px;border-width:3px}.avopt .avatar .em{font-size:1.8rem}
+.avopt.on{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,var(--surface))}
+.avopt.upload{border:3px dashed var(--line);justify-content:center;min-height:110px}
+.avopt .lock{position:absolute;top:6px;right:8px;font-size:1rem}
+.bio{background:var(--surface);border-radius:18px;padding:14px;display:flex;gap:12px;align-items:center}
+.bio p{margin:2px 0 0;font-weight:700;color:var(--muted);font-size:.95rem}
+.bio b{font-family:var(--font-display);font-size:1.1rem}
+/* READY + COUNTDOWN */
+.ready{display:flex;flex-direction:column;align-items:center;gap:16px;text-align:center;padding-block:20px}
+.ready h2{font-size:2.4rem}
+.ready .rules{max-width:38ch;color:var(--muted);font-weight:700;margin:0}
+.cdov{position:fixed;inset:0;z-index:60;display:none;align-items:center;justify-content:center;flex-direction:column;gap:10px;background:color-mix(in srgb,var(--bg) 94%,transparent);backdrop-filter:blur(8px)}
+.cdov.on{display:flex}
+.cdnum{font-family:var(--font-display);font-size:min(40vw,11rem);font-weight:700;line-height:1;color:var(--accent);text-shadow:0 10px 30px rgba(0,0,0,.2)}
+.cdnum.go{color:var(--green)}
+.cdring{position:absolute;width:min(70vw,360px);aspect-ratio:1;border-radius:50%;border:12px solid var(--sun);opacity:.5;animation:ring .85s ease-out infinite}
+@keyframes ring{from{transform:scale(.4);opacity:.7}to{transform:scale(1.4);opacity:0}}
+.cdsub{font-family:var(--font-display);font-size:1.4rem;font-weight:600;color:var(--muted)}
+/* PLAY */
+.hud{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.hud .score{margin-left:auto;text-align:right}
+.hud .score .num{font-family:var(--font-display);font-size:2.2rem;font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
+.hud .name{font-family:var(--font-display);font-weight:600;font-size:1.05rem}
+.hud .streak{font-weight:800;color:var(--accent);font-size:.9rem;min-height:1.2em}
+.mult{display:inline-block;background:var(--accent);color:#fff;border-radius:999px;padding:2px 9px;font-family:var(--font-display);font-weight:700;font-size:.85rem;animation:pulse 1s ease-in-out infinite}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
+.timer{background:var(--surface);border-radius:999px;height:22px;overflow:hidden;position:relative;box-shadow:inset 0 0 0 2px var(--line);margin-bottom:14px}
+.timer .fill{position:absolute;inset:0;width:100%;background:linear-gradient(90deg,var(--green),var(--sun));transform-origin:left}
+.timer.low .fill{background:linear-gradient(90deg,var(--accent),var(--sun))}
+.timer .txt{position:relative;z-index:1;text-align:center;font-family:var(--font-display);font-weight:700;font-size:.9rem;line-height:22px;color:var(--ink);font-variant-numeric:tabular-nums}
+.timer.off .fill{background:var(--surface-2)}
+.hurry .stage,.hurry .timer{animation:hurry .5s ease-in-out infinite alternate}
+.hurry .hud .num,.hurry .timer .txt{color:var(--accent)}
+@keyframes hurry{from{box-shadow:0 0 0 0 rgba(255,94,91,.0)}to{box-shadow:0 0 0 8px rgba(255,94,91,.55)}}
+.stage{position:relative;background:var(--surface);border-radius:26px;padding:16px;box-shadow:var(--shadow);margin-bottom:12px;overflow:hidden}
+.stylepill{position:absolute;top:10px;left:14px;z-index:4;background:var(--purple);color:#fff;border-radius:999px;padding:3px 10px;font-family:var(--font-display);font-weight:700;font-size:.8rem}
+.flagwrap{display:flex;justify-content:center;align-items:center;min-height:180px}
+.flagbox{position:relative;width:min(100%,420px);aspect-ratio:4/3;border-radius:14px;overflow:hidden;background:var(--surface-2);box-shadow:0 4px 14px rgba(0,0,0,.18)}
+.flagbox .inner{position:absolute;inset:0;transition:transform .5s}
+.flagbox.flip .inner{transform:rotate(180deg)}
+.flagbox img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;transition:transform .6s ease-out,filter .4s}
+.flagbox .emoji{position:absolute;inset:0;display:none;place-items:center;font-size:9rem;line-height:1}
+.flagbox.noimg img{display:none}.flagbox.noimg .emoji{display:grid}
+.tiles{position:absolute;inset:0;display:grid;grid-template-columns:repeat(6,1fr);grid-template-rows:repeat(4,1fr);gap:3px;perspective:600px}
+.tiles.hide{display:none}
+.tile{background-image:linear-gradient(135deg,rgba(255,255,255,.35),rgba(255,255,255,0) 55%,rgba(0,0,0,.12));border-radius:6px;transition:opacity .45s,transform .55s cubic-bezier(.4,1.4,.6,1);display:grid;place-items:center;font-family:var(--font-display);font-weight:700;color:rgba(255,255,255,.9);font-size:1.3rem;text-shadow:0 2px 4px rgba(0,0,0,.25);transform-style:preserve-3d}
+.tile.gone{opacity:0;transform:rotateY(100deg) scale(.3) translateY(-50px)}
+.flagbox.contain img{object-fit:contain;background:#1E3350}
+.morph{opacity:0;transition:opacity .7s ease-out,filter .7s;pointer-events:none;display:none;z-index:2}
+.flagbox.morphing .morph{display:block}
+.bmark{position:absolute;inset:0;display:none;place-items:center;font-size:9rem;font-weight:700;font-family:var(--font-display);z-index:6;pointer-events:none;text-shadow:0 8px 24px rgba(0,0,0,.35)}
+.bmark.on{display:grid;animation:pop .35s ease-out}
+.bmark.ok{color:var(--green);background:rgba(43,182,115,.28)}.bmark.no{color:var(--accent);background:rgba(255,94,91,.28)}
+.labrow{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:center;margin:10px 0}
+.labrow select{width:100%;border:2px solid var(--line);border-radius:12px;padding:8px;font-family:var(--font-display);font-weight:600;background:var(--surface-2);color:var(--ink);font-size:.95rem}
+.labbox{position:relative;width:min(100%,360px);aspect-ratio:4/3;margin:0 auto;border-radius:12px;overflow:hidden;box-shadow:0 4px 14px rgba(0,0,0,.2);background:#1E3350}
+.labbox img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.spot{position:absolute;inset:0;width:100%;height:100%;display:none}
+.spot.on{display:block}
+.spot circle{transition:r .7s ease-out}
+.fx-wobble .flagbox{animation:wobble 1.1s ease-in-out infinite}
+@keyframes wobble{0%{transform:rotate(-7deg) translateX(-10px) skewX(3deg)}25%{transform:rotate(5deg) translateY(-8px)}50%{transform:rotate(-4deg) translateX(10px) skewX(-4deg)}75%{transform:rotate(8deg) translateY(6px)}100%{transform:rotate(-7deg) translateX(-10px) skewX(3deg)}}
+.fx-wobble .stage{animation:queasy 2.6s linear infinite}
+@keyframes queasy{0%,100%{filter:hue-rotate(0)}50%{filter:hue-rotate(40deg)}}
+.fx-spin .flagbox{animation:spin 3s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.fx-chaos .flagbox{animation:chaos 1.6s linear infinite;width:min(60%,260px)}
+@keyframes chaos{0%{transform:rotate(180deg) scale(1)}50%{transform:rotate(360deg) scale(.7) skewX(12deg)}100%{transform:rotate(540deg) scale(1)}}
+.catrun{position:fixed;right:10px;bottom:calc(10px + env(safe-area-inset-bottom,0px));width:140px;z-index:30;pointer-events:none;display:none}
+.catrun.on{display:block}
+.catrun img{width:100%;display:block;filter:drop-shadow(0 8px 12px rgba(0,0,0,.35))}
+.meter{display:flex;justify-content:center;align-items:center;gap:6px;margin-top:12px;flex-wrap:wrap}
+.meter .star{font-size:1.5rem;transition:opacity .3s,transform .3s}
+.meter .star.off{opacity:.18;transform:scale(.8)}
+.meter .pts{font-family:var(--font-display);font-weight:700;font-size:1.05rem;margin-left:8px;color:var(--muted)}
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.choice{border:0;border-radius:18px;padding:12px 12px 12px 10px;background:var(--surface);color:var(--ink);font-family:var(--font-display);font-weight:600;font-size:1.05rem;display:flex;align-items:center;gap:10px;text-align:left;box-shadow:0 5px 0 var(--line);transition:transform .08s,box-shadow .08s;min-height:58px}
+.choice:active{transform:translateY(4px);box-shadow:0 1px 0 var(--line)}
+.choice .k{flex:none;width:30px;height:30px;border-radius:9px;background:var(--blue);color:#fff;display:grid;place-items:center;font-size:.95rem}
+.choice.correct{background:var(--green);color:#fff;box-shadow:0 5px 0 var(--green-deep)}.choice.correct .k{background:#fff;color:var(--green-deep)}
+.choice.wrong{background:var(--accent);color:#fff;box-shadow:0 5px 0 var(--accent-deep)}.choice.wrong .k{background:#fff;color:var(--accent-deep)}
+.choice.dim{opacity:.45}
+.choice[disabled]{cursor:default}
+.actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.toast{position:absolute;inset:0;background:color-mix(in srgb,var(--surface) 90%,transparent);backdrop-filter:blur(3px);display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:14px;z-index:5;gap:4px;overflow:auto}
+.toast.on{display:flex}
+.toast .big{font-family:var(--font-display);font-size:1.7rem;font-weight:700;line-height:1.15}
+.toast .big.good{color:var(--green)}.toast .big.bad{color:var(--accent)}.toast .big.pass{color:var(--muted)}
+.toast .who{font-family:var(--font-display);font-size:1.25rem;font-weight:600}
+.toast .fact{font-weight:800;color:var(--muted);max-width:40ch;font-size:1rem}
+.map{position:relative;width:min(100%,300px);aspect-ratio:2/1;border-radius:10px;overflow:hidden;box-shadow:0 3px 10px rgba(0,0,0,.2);margin-top:6px;background:#BFE0F5}
+.map img{width:100%;height:100%;display:block}
+.map .pin{position:absolute;width:14px;height:14px;margin:-7px 0 0 -7px;border-radius:50%;background:var(--accent);border:3px solid #fff;box-shadow:0 0 0 3px var(--accent)}
+.map .pin::after{content:"";position:absolute;inset:-10px;border-radius:50%;border:3px solid var(--accent);animation:ping 1s ease-out infinite}
+@keyframes ping{from{transform:scale(.4);opacity:1}to{transform:scale(1.6);opacity:0}}
+.pauseov{position:fixed;inset:0;z-index:58;display:none;flex-direction:column;align-items:center;justify-content:center;gap:10px;background:var(--bg);text-align:center;padding:16px}
+.pauseov.on{display:flex}
+.pauseov .big{font-family:var(--font-display);font-size:3rem;font-weight:700}
+.pauseov p{margin:0 0 10px;font-weight:800;color:var(--muted);max-width:30ch}
+.pop{animation:pop .45s ease-out}
+@keyframes pop{0%{transform:scale(.6)}60%{transform:scale(1.15)}100%{transform:scale(1)}}
+.shake{animation:shake .4s}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+/* SUMMARY / RESULTS */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0}
+.stat{background:var(--surface-2);border-radius:16px;padding:10px;text-align:center}
+.stat .n{font-family:var(--font-display);font-size:1.7rem;font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
+.stat .l{font-size:.8rem;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.learned{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.learned .mini{display:flex;align-items:center;gap:6px;background:var(--surface-2);border-radius:999px;padding:4px 10px 4px 4px;font-weight:800;font-size:.85rem}
+.learned .mini img{width:26px;height:20px;border-radius:4px;object-fit:cover}
+.dyk{display:grid;gap:10px;margin-top:8px;text-align:left}
+.dyk .c{display:flex;gap:12px;align-items:center;background:var(--surface-2);border-radius:16px;padding:10px}
+.dyk img{width:72px;aspect-ratio:4/3;object-fit:cover;border-radius:8px;flex:none;box-shadow:0 2px 6px rgba(0,0,0,.2)}
+.dyk b{font-family:var(--font-display);font-size:1.05rem}
+.dyk p{margin:2px 0 0;font-weight:700;color:var(--muted);font-size:.92rem}
+.bigscore{font-family:var(--font-display);font-size:4rem;font-weight:700;line-height:1;color:var(--blue);font-variant-numeric:tabular-nums}
+.versus{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:center;margin:16px 0}
+.vs{font-family:var(--font-display);font-weight:700;font-size:1.6rem;color:var(--muted)}
+.pl{display:flex;flex-direction:column;align-items:center;gap:8px;position:relative;padding-top:24px}
+.pl .crown{position:absolute;top:-6px;font-size:2.2rem;display:none;animation:bob 1.6s ease-in-out infinite;z-index:2}
+.pl.win .crown{display:block}
+.pl .sc{font-family:var(--font-display);font-size:2.6rem;font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
+.pl .nm{font-family:var(--font-display);font-weight:600}
+.winner{font-size:2.2rem;text-align:center}
+.unlock{display:flex;align-items:center;gap:12px;background:linear-gradient(90deg,color-mix(in srgb,var(--sun) 35%,var(--surface)),var(--surface));border-radius:18px;padding:12px;margin-top:14px}
+.unlock b{font-family:var(--font-display);font-size:1.1rem}
+.unlock p{margin:2px 0 0;font-weight:700;color:var(--muted);font-size:.9rem}
+.confetti{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:40}
+.confetti i{position:absolute;top:-20px;width:12px;height:18px;border-radius:3px;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(110vh) rotate(720deg)}}
+/* LEADERBOARD */
+table{width:100%;border-collapse:collapse;font-weight:700}
+th{text-align:left;font-size:.75rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding:6px 8px;border-bottom:2px solid var(--line)}
+td{padding:8px;border-bottom:1px solid var(--line);vertical-align:middle;font-variant-numeric:tabular-nums}
+td .avatar{width:38px;height:38px;border-width:2px}td .avatar .em{font-size:1.15rem}
+.rank{font-family:var(--font-display);font-weight:700;font-size:1.1rem}
+.trophies{display:flex;flex-wrap:wrap;gap:8px}
+.trophy{background:var(--surface-2);border-radius:999px;padding:6px 12px;font-weight:800}
+/* COLLECTION */
+.bookgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-top:12px}
+.bk{background:var(--surface);border-radius:16px;padding:8px;box-shadow:var(--shadow);border:0;text-align:left;color:var(--ink);font-family:var(--font-body);position:relative}
+.bk img{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:10px;display:block}
+.bk.locked img{filter:grayscale(1) brightness(.75);opacity:.55}
+.bk .n{font-family:var(--font-display);font-weight:600;margin-top:6px;font-size:.95rem}
+.bk .c{font-size:.8rem;color:var(--muted);font-weight:700}
+.bk .ok{position:absolute;top:4px;right:4px;background:var(--green);color:#fff;border-radius:999px;font-size:.75rem;padding:2px 7px;font-weight:800}
+.bk .lk{position:absolute;top:4px;right:6px;font-size:1.1rem}
+.bk.open .f{display:block}
+.bk .f{display:none;font-size:.85rem;font-weight:700;margin-top:6px;color:var(--ink)}
+.topbar{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.topbar h2{font-size:1.8rem}
+.progress{height:14px;background:var(--surface-2);border-radius:999px;overflow:hidden;box-shadow:inset 0 0 0 2px var(--line)}
+.progress i{display:block;height:100%;background:linear-gradient(90deg,var(--green),var(--sun))}
+.bonus-q{font-family:var(--font-display);font-size:1.5rem;text-align:center;margin:8px 0}
+.bonusflag{display:flex;justify-content:center;margin:10px 0}
+.bonusflag img{width:min(100%,300px);aspect-ratio:4/3;object-fit:cover;border-radius:12px;box-shadow:0 4px 14px rgba(0,0,0,.2)}
+.pill{display:inline-block;background:var(--purple);color:#fff;border-radius:999px;padding:4px 12px;font-family:var(--font-display);font-weight:700;font-size:.9rem}
+.onlinegrid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.onlinecol{background:var(--surface-2);border-radius:16px;padding:12px;display:flex;flex-direction:column;gap:8px}
+.onlinecol b{font-family:var(--font-display);font-size:1.1rem}
+.onlinecol p{margin:0;font-weight:700;font-size:.9rem}
+#joinCode{flex:1;min-width:90px;border:2px solid var(--line);border-radius:14px;padding:10px;font-family:var(--font-display);font-weight:700;font-size:1.4rem;text-align:center;letter-spacing:.2em;text-transform:uppercase;background:var(--surface);color:var(--ink)}
+.roomcode{font-family:var(--font-display);font-size:4.2rem;font-weight:700;letter-spacing:.25em;color:var(--accent);line-height:1.1;margin-left:.25em}
+.lobbyplayers{display:flex;justify-content:center;gap:20px;flex-wrap:wrap;margin:8px 0}
+.lobbyp{display:flex;flex-direction:column;align-items:center;gap:6px;font-family:var(--font-display);font-weight:600;min-width:120px}
+.lobbyp.empty .avatar{border-style:dashed;opacity:.5}
+.opp{display:flex;align-items:center;gap:10px;background:var(--surface);border-radius:16px;padding:8px 12px;margin:-6px 0 12px;box-shadow:var(--shadow)}
+.opp .avatar{width:40px;height:40px;border-width:2px}.opp .avatar .em{font-size:1.2rem}
+.oppname{font-family:var(--font-display);font-weight:600}
+.oppinfo{color:var(--muted);font-weight:800;font-size:.85rem;flex:1}
+.oppscore{font-family:var(--font-display);font-weight:700;font-size:1.6rem;color:var(--purple);font-variant-numeric:tabular-nums}
+@media (max-width:480px){.onlinegrid{grid-template-columns:1fr}.roomcode{font-size:3.2rem}}
+.flash{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);border-radius:999px;padding:10px 18px;font-family:var(--font-display);font-weight:700;z-index:70;display:none;box-shadow:var(--shadow)}
+.flash.on{display:block;animation:pop .3s ease-out}
+@media (max-width:480px){
+  .hero h1{font-size:2.2rem}.hero .globe{font-size:2.8rem}
+  .avatar{width:80px;height:80px}.avatar .em{font-size:2.5rem}
+  .choice{font-size:.98rem}
+  .toast .big{font-size:1.4rem}
+  details.credits ul{columns:1}
+  .catrun{width:120px}
+  .modes{grid-template-columns:repeat(2,1fr)}
+  .bmark{font-size:6rem}
+}
+@media (prefers-reduced-motion:reduce){
+  .hero .globe,.pl .crown,.mult,.map .pin::after,.cdring,.hurry .stage,.hurry .timer,.catrun img{animation:none}
+  .fx-wobble .flagbox,.fx-wobble .stage,.fx-spin .flagbox,.fx-chaos .flagbox,.catrun{animation-duration:14s}
+}
+</style>
+
+<div class="wrap" id="app">
+
+<!-- HOME -->
+<section class="screen on" id="s-home">
+  <div class="hero">
+    <div class="globe">🌍</div>
+    <div><h1>Flag <span>Frenzy</span></h1><p>Spot the flag before it's fully revealed!</p></div>
+  </div>
+
+  <div class="label" style="margin-bottom:8px">Game mode</div>
+  <div class="modes" id="modes">
+    <button class="mode on" data-mode="two"><span class="ic">👥</span>Two Players</button>
+    <button class="mode" data-mode="solo"><span class="ic">🧍</span>Solo</button>
+    <button class="mode" data-mode="practice"><span class="ic">🎯</span>Practice</button>
+    <button class="mode" data-mode="blitz"><span class="ic">⚡</span>Flag Blitz</button>
+    <button class="mode" data-mode="online" id="modeOnline"><span class="ic">🌐</span>Online Duel</button>
+  </div>
+  <p class="muted" id="modeDesc" style="margin:-6px 0 14px;font-weight:700"></p>
+
+  <div class="players" id="players"></div>
+
+  <div class="set online" id="onlinePanel" hidden>
+    <div class="head"><span class="label">🌐 Play against someone on another tablet</span></div>
+    <div class="onlinegrid">
+      <div class="onlinecol"><b>Start a room</b><p class="muted">You pick the settings below. Your friend joins with the code.</p><button class="btn green" id="btnCreateRoom">🏠 Create a room</button></div>
+      <div class="onlinecol"><b>Join a room</b><p class="muted">Type the 4-letter code from the other tablet.</p><div class="row" style="gap:8px"><input id="joinCode" maxlength="4" placeholder="CODE" autocapitalize="characters" autocomplete="off" aria-label="Room code"><button class="btn" id="btnJoinRoom">Join ➜</button></div></div>
+    </div>
+    <div class="lvl-desc" id="onlineStatus"></div>
+  </div>
+
+  <div class="settings">
+    <div class="set" id="setTime">
+      <div class="head"><span class="label">⏱ Round time</span><span class="val" id="timeVal">2:00</span></div>
+      <input type="range" id="timeRange" min="1" max="5" step="0.5" value="2" aria-label="Round time in minutes">
+      <div class="toggle" id="practiceTimedRow" hidden><span style="font-weight:800">Use a timer in practice</span><button class="switch" id="swPracticeTimed" aria-label="Timer in practice"></button></div>
+      <div class="toggle" id="practiceAutoRow" hidden><span style="font-weight:800">Auto-advance to the next flag</span><button class="switch on" id="swPracticeAuto" aria-label="Auto-advance in practice"></button></div>
+      <div id="blitzRow" hidden><div class="label sub">How many flags?</div><div class="chips" id="blitzChips"><button class="chip" data-n="10">10 flags</button><button class="chip" data-n="20">20 flags</button><button class="chip" data-n="30">30 flags</button><button class="chip" data-n="50">50 flags</button></div><div class="lvl-desc">Full flags, no reveal. Tap fast: ✓ for right, ✗ for wrong. The clock counts up until you finish.</div></div>
+    </div>
+    <div class="set">
+      <div class="head"><span class="label">🔥 Difficulty</span></div>
+      <div class="chips" id="levels"></div>
+      <div class="lvl-desc" id="lvlDesc"></div>
+    </div>
+    <div class="set">
+      <div class="head"><span class="label">🌎 Challenges</span></div>
+      <div class="label sub">Reveal style</div>
+      <div class="chips" id="styleChips">
+        <button class="chip" data-style="classic">🧩 Puzzle tiles</button>
+        <button class="chip" data-style="spotlight">🔦 Spotlight</button>
+        <button class="chip" data-style="zoom">🕵️ Mystery Zoom</button>
+        <button class="chip" data-style="flip">🔄 Upside-Down</button>
+        <button class="chip" data-style="lookalike">👀 Look-alikes</button>
+        <button class="chip" data-style="morph">🧬 Morph</button>
+        <button class="chip" data-style="mix">🎲 Mix it up</button>
+      </div>
+      <div class="lvl-desc" id="styleDesc"></div>
+      <div class="label sub">Continent</div>
+      <div class="chips" id="contChipsHome"></div>
+      <div class="toggle" style="margin-top:8px"><span style="font-weight:800">🏛️ Include historical flags <span class="muted" style="font-size:.85rem">(Soviet Union, Qing dynasty, old US flags…)</span></span><button class="switch" id="swHist" aria-label="Include historical flags"></button></div>
+    </div>
+    <div class="set" id="setBonus">
+      <div class="head"><span class="label">🎁 Bonus round</span></div>
+      <div class="chips" id="bonusChips">
+        <button class="chip" data-bonus="capital">🏙️ Capital Quest</button>
+        <button class="chip" data-bonus="lightning">⚡ Lightning Round</button>
+        <button class="chip" data-bonus="states">🇺🇸 US States</button>
+        <button class="chip" data-bonus="off">🚫 No bonus</button>
+      </div>
+      <div class="lvl-desc" id="bonusDesc"></div>
+    </div>
+    <div class="set">
+      <div class="toggle"><span style="font-weight:800">🔊 Sound effects</span><button class="switch on" id="swSound" aria-label="Sound effects"></button></div>
+      <div class="toggle"><span style="font-weight:800">🗣️ Read the choices out loud</span><button class="switch" id="swSpeak" aria-label="Read choices aloud"></button></div>
+    </div>
+    <div class="set">
+      <div class="head"><span class="label">💾 Settings</span><span class="muted" style="font-weight:800;font-size:.85rem" id="saveStatus">Saved automatically on this device</span></div>
+      <div class="row"><button class="btn sm green" id="btnSaveSettings">💾 Save my settings</button><button class="btn sm ghost" id="btnResetSettings">↺ Reset to defaults</button></div>
+    </div>
+  </div>
+
+  <div class="start-row">
+    <button class="btn accent big" id="btnStart">▶ Start Game</button>
+    <div class="links">
+      <button class="btn ghost sm" id="btnHof">🏆 Family Leaderboard</button>
+      <button class="btn ghost sm" id="btnBook">🌟 Flag Collection</button>
+    </div>
+  </div>
+  <details class="credits"><summary>Portrait credits</summary><ul id="creditsList"></ul></details>
+</section>
+
+<!-- LOBBY -->
+<section class="screen" id="s-lobby">
+  <div class="card center">
+    <div class="label">Room code</div>
+    <div class="roomcode" id="lobbyCode">ABCD</div>
+    <p class="muted" style="font-weight:800;margin:4px 0 14px" id="lobbyHint">Tell your opponent this code. They tap Online Duel → Join a room.</p>
+    <div class="lobbyplayers" id="lobbyPlayers"></div>
+    <div class="lvl-desc" id="lobbyStatus"></div>
+    <div class="actions" style="margin-top:16px">
+      <button class="btn accent big" id="btnLobbyStart" hidden>▶ Start the duel</button>
+      <button class="btn ghost" id="btnLobbyLeave">← Leave room</button>
+    </div>
+  </div>
+</section>
+
+<!-- READY -->
+<section class="screen" id="s-ready">
+  <div class="ready">
+    <div id="readyAvatar"></div>
+    <h2 id="readyTitle">Get ready!</h2>
+    <p class="rules" id="readyRules"></p>
+    <button class="btn green big" id="btnGo">I'm ready! 🚀</button>
+  </div>
+</section>
+
+<!-- PLAY -->
+<section class="screen" id="s-play">
+  <div class="hud">
+    <div id="hudAvatar"></div>
+    <div><div class="name" id="hudName"></div><div class="streak" id="hudStreak"></div></div>
+    <div class="score"><div class="label">Score</div><div class="num" id="hudScore">0</div></div>
+  </div>
+  <div class="timer" id="timer"><div class="fill" id="timerFill"></div><div class="txt" id="timerTxt">2:00</div></div>
+  <div class="opp" id="oppHud" hidden><div id="oppAvatar"></div><div class="oppname" id="oppName">Opponent</div><div class="oppinfo" id="oppInfo"></div><div class="oppscore" id="oppScore">0</div></div>
+  <div id="fxwrap">
+  <div class="stage" id="stage">
+    <span class="stylepill" id="stylePill" hidden></span>
+    <div class="flagwrap">
+      <div class="flagbox" id="flagbox">
+        <div class="inner"><img id="flagimg" alt="Mystery flag"><div class="emoji" id="flagEmoji"></div><img id="morphimg" class="morph" alt=""></div>
+        <div class="bmark" id="bmark"></div>
+        <div class="tiles" id="tiles"></div>
+        <svg class="spot" id="spot" viewBox="0 0 400 300" preserveAspectRatio="none" aria-hidden="true"><defs><mask id="spotmask"><rect width="400" height="300" fill="#fff"/><circle id="sc0" cx="200" cy="150" r="0" fill="#000"/><circle id="sc1" cx="100" cy="80" r="0" fill="#000"/><circle id="sc2" cx="300" cy="220" r="0" fill="#000"/></mask></defs><rect width="400" height="300" fill="#0b1a2b" mask="url(#spotmask)"/></svg>
+      </div>
+    </div>
+    <div class="meter" id="meter"></div>
+    <div class="toast" id="toast">
+      <div class="big" id="toastBig"></div>
+      <div class="who" id="toastWho"></div>
+      <div class="fact" id="toastFact" hidden></div>
+      <div class="map" id="toastMap"><img src="map.svg" alt="World map"><span class="pin" id="toastPin"></span></div>
+      <button class="btn sm sun" id="toastNext" hidden style="margin-top:8px">Next flag ➜</button>
+    </div>
+  </div>
+  </div>
+  <div class="choices" id="choices"></div>
+  <div class="actions">
+    <button class="btn ghost" id="btnPass">⏭ Pass (0 points)</button>
+    <button class="btn ghost" id="btnPause">⏸ Pause</button>
+    <button class="btn ghost" id="btnSpeak" title="Read the choices" aria-label="Read the choices out loud">🔊</button>
+    <button class="btn ghost" id="btnStop">⏹ Quit</button>
+  </div>
+</section>
+
+<!-- BONUS -->
+<section class="screen" id="s-bonus">
+  <div class="hud">
+    <div id="bonusAvatar"></div>
+    <div><div class="name" id="bonusName"></div><span class="pill" id="bonusPill">Bonus round</span></div>
+    <div class="score"><div class="label">Bonus</div><div class="num" id="bonusScore">0</div></div>
+  </div>
+  <div class="timer" id="bonusTimer"><div class="fill" id="bonusFill"></div><div class="txt" id="bonusTxt"></div></div>
+  <div class="stage" id="bonusStage">
+    <div class="bonus-q" id="bonusQ"></div>
+    <div class="bonusflag"><img id="bonusImg" alt=""></div>
+    <div class="toast" id="bonusToast"><div class="big" id="bonusToastBig"></div><div class="who" id="bonusToastWho"></div><div class="fact" id="bonusToastFact"></div></div>
+  </div>
+  <div class="choices" id="bonusChoices"></div>
+  <div class="actions"><button class="btn ghost" id="btnBonusPass">⏭ Skip</button><button class="btn ghost" id="btnBonusPause">⏸ Pause</button><button class="btn ghost" id="btnBonusQuit">⏹ Quit</button></div>
+</section>
+
+<!-- SUMMARY -->
+<section class="screen" id="s-summary">
+  <div class="card center">
+    <div id="sumAvatar" style="display:flex;justify-content:center"></div>
+    <h2 id="sumTitle" style="margin-top:10px">Time's up!</h2>
+    <div class="bigscore" id="sumScore">0</div>
+    <div class="muted" style="font-weight:800" id="sumSub"></div>
+    <div class="stats">
+      <div class="stat"><div class="n" id="sumRight">0</div><div class="l">Right</div></div>
+      <div class="stat"><div class="n" id="sumWrong">0</div><div class="l">Wrong</div></div>
+      <div class="stat"><div class="n" id="sumPass">0</div><div class="l">Passed</div></div>
+    </div>
+    <div class="label" style="text-align:left">🌟 Flags collected this round</div>
+    <div class="learned" id="sumLearned"></div>
+    <div class="label" style="text-align:left;margin-top:16px">📚 Did you know?</div>
+    <div class="dyk" id="sumDyk"></div>
+    <div style="margin-top:18px"><button class="btn accent big" id="btnSumNext">Next ➜</button></div>
+  </div>
+</section>
+
+<!-- RESULTS -->
+<section class="screen" id="s-results">
+  <div class="card">
+    <h2 class="winner" id="resTitle">🏆 Winner!</h2>
+    <div id="resBody"></div>
+    <div class="label" style="margin-top:6px" id="resRankLabel"></div>
+    <div id="resUnlock"></div>
+    <div class="actions" style="margin-top:18px">
+      <button class="btn accent" id="btnRematch">🔁 Rematch</button>
+      <button class="btn ghost" id="btnHome">🏠 Home</button>
+      <button class="btn ghost" id="btnHof2">🏆 Leaderboard</button>
+    </div>
+  </div>
+</section>
+
+<!-- LEADERBOARD -->
+<section class="screen" id="s-hof">
+  <div class="topbar"><button class="btn ghost sm" id="btnHofBack">← Back</button><h2>🏆 Family Leaderboard</h2></div>
+  <div class="card" style="margin-bottom:12px">
+    <div class="label" style="margin-bottom:8px">Trophy case (two-player wins)</div>
+    <div class="trophies" id="trophies"></div>
+  </div>
+  <div class="card">
+    <div class="label" style="margin-bottom:8px">All-time top scores</div>
+    <div style="overflow-x:auto"><table id="hofTable"><thead><tr><th>#</th><th></th><th>Player</th><th>Score</th><th>Level</th><th>Time</th></tr></thead><tbody></tbody></table></div>
+    <div class="muted" id="hofEmpty" style="font-weight:800;padding:10px 0" hidden>No scores yet. Play a Solo or Two Player game to get on the board!</div>
+    <div style="margin-top:12px"><button class="btn ghost sm" id="btnHofClear">Clear scores</button></div>
+  </div>
+</section>
+
+<!-- COLLECTION -->
+<section class="screen" id="s-book">
+  <div class="topbar"><button class="btn ghost sm" id="btnBookBack">← Back</button><h2>🌟 Flag Collection</h2></div>
+  <div class="card">
+    <div class="row" style="justify-content:space-between">
+      <div><div class="label">Collected</div><div style="font-weight:800" id="passportTxt"></div></div>
+      <div style="flex:1;min-width:140px"><div class="progress"><i id="passportBar" style="width:0%"></i></div></div>
+    </div>
+    <div class="chips" id="contChips" style="margin-top:12px"></div>
+    <p class="muted" style="font-weight:700;margin:10px 0 0">Guess a flag correctly in any game to unlock it. Tap a flag for its fun fact.</p>
+  </div>
+  <div class="card lab" style="margin-top:12px">
+    <div class="head" style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><span class="label">🧬 Flag Lab: morph any two flags</span><button class="btn sm ghost" id="labPlay">▶ Auto-morph</button></div>
+    <div class="labrow"><select id="labA" aria-label="First flag"></select><span class="muted" style="font-weight:800">→</span><select id="labB" aria-label="Second flag"></select></div>
+    <div class="labbox" id="labBox"><img id="labImgA" alt=""><img id="labImgB" alt=""></div>
+    <input type="range" id="labRange" min="0" max="100" value="0" aria-label="Morph amount">
+    <div class="lvl-desc" id="labTxt"></div>
+  </div>
+  <div class="bookgrid" id="bookgrid"></div>
+</section>
+
+</div>
+
+<div class="modal" id="avModal">
+  <div class="sheet">
+    <div class="row" style="justify-content:space-between"><h2 id="avTitle">Pick your Legend</h2><button class="btn sm accent" id="avDone">Done ✓</button></div>
+    <p class="muted" style="font-weight:700;margin:6px 0 0" id="avHint"></p>
+    <div class="avgrid" id="avgrid"></div>
+    <div class="bio" id="avBio"></div>
+    <input type="file" id="avFile" accept="image/*" hidden>
+  </div>
+</div>
+<div class="modal mid" id="confirmModal">
+  <div class="dialog"><h2 id="cfTitle">Are you sure?</h2><p id="cfMsg"></p><div class="actions"><button class="btn ghost" id="cfNo">Keep playing</button><button class="btn accent" id="cfYes">Quit game</button></div></div>
+</div>
+<div class="cdov" id="cdOverlay"><div class="cdring"></div><div class="cdnum" id="cdNum">3</div><div class="cdsub" id="cdSub">Get ready…</div></div>
+<div class="pauseov" id="pauseOv"><div style="font-size:3.5rem">⏸</div><div class="big">Paused</div><p>Potty break? Snack? Take your time. The flag is hidden and the clock is stopped. 🚽</p><button class="btn green big" id="btnResume">▶ Resume</button></div>
+<div class="confetti" id="confetti"></div>
+<div class="catrun" id="catrun" aria-hidden="true"><img src="cat.webp" alt=""></div>
+<div class="flash" id="flash"></div>
+
+<script>
+/* ---------- DATA ---------- */
+// [code, name, capital, continent, tier(1 famous..4 obscure), colors, fun fact]
+const RAW=[
+["dz","Algeria","Algiers","AF",2,"grw","The biggest country in Africa, and most of it is the Sahara Desert."],
+["ao","Angola","Luanda","AF",3,"kry","Its flag shows a machete and half a gear wheel."],
+["bj","Benin","Porto-Novo","AF",4,"gry","Home of the ancient Kingdom of Dahomey and its famous women warriors."],
+["bw","Botswana","Gaborone","AF",3,"bkw","Has more elephants than any other country on Earth."],
+["bf","Burkina Faso","Ouagadougou","AF",4,"gry","Its name means 'Land of Honest People'."],
+["bi","Burundi","Gitega","AF",4,"grw","Its royal drummers are so famous they are a world treasure."],
+["cv","Cape Verde","Praia","AF",4,"brwy","Ten islands off Africa's coast with beaches and a volcano."],
+["cm","Cameroon","Yaoundé","AF",2,"gry","Called 'Africa in miniature' because it has jungles, deserts, beaches and mountains."],
+["cf","Central African Republic","Bangui","AF",4,"bgrwy","One of the most colorful flags in the world, with five colors."],
+["td","Chad","N'Djamena","AF",3,"bry","Its flag looks almost exactly like Romania's flag!"],
+["km","Comoros","Moroni","AF",4,"bgrwy","Four stars and four stripes for four islands."],
+["cg","Republic of the Congo","Brazzaville","AF",4,"gry","Its capital sits right across the river from another capital, Kinshasa."],
+["cd","DR Congo","Kinshasa","AF",3,"bry","Home of the bonobo, a rare ape found nowhere else."],
+["ci","Ivory Coast","Yamoussoukro","AF",2,"gow","It's Ireland's flag flipped around, with orange first!"],
+["dj","Djibouti","Djibouti","AF",4,"bgrw","One of the hottest places on the planet."],
+["eg","Egypt","Cairo","AF",1,"krwy","The pyramids here are more than 4,500 years old!"],
+["gq","Equatorial Guinea","Malabo","AF",4,"bgrw","Its flag has a silk-cotton tree in the middle."],
+["er","Eritrea","Asmara","AF",4,"bgry","An olive branch sits on its red triangle."],
+["sz","Eswatini","Mbabane","AF",4,"bkrwy","Its flag shows a shield, two spears and a fighting stick."],
+["et","Ethiopia","Addis Ababa","AF",2,"bgry","Coffee was first discovered here, by a goat herder!"],
+["ga","Gabon","Libreville","AF",4,"bgy","Almost 90% of the country is rainforest."],
+["gm","Gambia","Banjul","AF",4,"bgrw","The smallest country on mainland Africa, shaped like a river."],
+["gh","Ghana","Accra","AF",2,"gkry","The black star stands for African freedom."],
+["gn","Guinea","Conakry","AF",3,"gry","It's Mali's flag in reverse order!"],
+["gw","Guinea-Bissau","Bissau","AF",4,"gkry","Made of dozens of islands and a mainland."],
+["ke","Kenya","Nairobi","AF",1,"gkrw","Famous for lions, giraffes and the world's fastest marathon runners."],
+["ls","Lesotho","Maseru","AF",4,"bgkw","A country completely surrounded by South Africa."],
+["lr","Liberia","Monrovia","AF",3,"brw","Its flag looks like the USA's, with just one star."],
+["ly","Libya","Tripoli","AF",3,"gkrw","The Sahara Desert covers most of the country."],
+["mg","Madagascar","Antananarivo","AF",2,"grw","Lemurs live here and nowhere else in the wild!"],
+["mw","Malawi","Lilongwe","AF",4,"gkr","A rising sun shines on its flag."],
+["ml","Mali","Bamako","AF",3,"gry","Timbuktu was once a city of gold and thousands of books."],
+["mr","Mauritania","Nouakchott","AF",4,"gry","A golden crescent moon and star on green."],
+["mu","Mauritius","Port Louis","AF",3,"bgry","The dodo bird used to live here."],
+["ma","Morocco","Rabat","AF",2,"gr","A green star on a red flag."],
+["mz","Mozambique","Maputo","AF",4,"gkrwy","The only flag in the world with a modern rifle on it."],
+["na","Namibia","Windhoek","AF",3,"bgrwy","Has some of the tallest sand dunes in the world."],
+["ne","Niger","Niamey","AF",4,"gow","An orange sun in the middle of the flag."],
+["ng","Nigeria","Abuja","AF",1,"gw","More people live here than in any other African country."],
+["rw","Rwanda","Kigali","AF",3,"bgy","Land of the mountain gorillas."],
+["st","São Tomé and Príncipe","São Tomé","AF",4,"gkry","Two tiny islands right on the equator."],
+["sn","Senegal","Dakar","AF",2,"gry","A green star sits in the middle of the yellow stripe."],
+["sc","Seychelles","Victoria","AF",3,"bgrwy","Its flag looks like rays of a colorful sunrise."],
+["sl","Sierra Leone","Freetown","AF",4,"bgw","Its name means 'Lion Mountains'."],
+["so","Somalia","Mogadishu","AF",3,"bw","One white star on a light blue flag."],
+["za","South Africa","Pretoria","AF",1,"bgkrwy","Six colors! One of the most colorful flags in the world."],
+["ss","South Sudan","Juba","AF",4,"bgkrwy","The newest country in the world, born in 2011."],
+["sd","Sudan","Khartoum","AF",3,"gkrw","Has more pyramids than Egypt!"],
+["tz","Tanzania","Dodoma","AF",2,"bgky","Home of Mount Kilimanjaro, the tallest mountain in Africa."],
+["tg","Togo","Lomé","AF",4,"grwy","A thin country only about 50 miles wide."],
+["tn","Tunisia","Tunis","AF",2,"rw","Looks like Turkey's flag, but with a white circle."],
+["ug","Uganda","Kampala","AF",2,"kry","A crested crane bird stands in the center."],
+["zm","Zambia","Lusaka","AF",3,"gkor","Home to Victoria Falls, with an eagle on the flag."],
+["zw","Zimbabwe","Harare","AF",2,"gkrwy","A stone bird from the ancient city of Great Zimbabwe."],
+["am","Armenia","Yerevan","AS",3,"bor","One of the oldest countries in the world."],
+["az","Azerbaijan","Baku","AS",3,"bgr","Called the Land of Fire: natural gas flames burn out of the ground."],
+["bh","Bahrain","Manama","AS",3,"rw","A zigzag edge with five white points."],
+["bd","Bangladesh","Dhaka","AS",2,"gr","A red circle on green, home of the Bengal tiger."],
+["bt","Bhutan","Thimphu","AS",3,"oy","A dragon on the flag! It's called the Land of the Thunder Dragon."],
+["bn","Brunei","Bandar Seri Begawan","AS",4,"kry","A tiny, rich country on the island of Borneo."],
+["kh","Cambodia","Phnom Penh","AS",2,"brw","The only flag with a building on it: the temple of Angkor Wat."],
+["cn","China","Beijing","AS",1,"ry","Home of the Great Wall and giant pandas."],
+["cy","Cyprus","Nicosia","EU",3,"gow","Its flag shows the shape of the island itself."],
+["ge","Georgia","Tbilisi","AS",3,"rw","Five red crosses on white."],
+["in","India","New Delhi","AS",1,"bgow","A blue wheel with 24 spokes sits in the middle."],
+["id","Indonesia","Jakarta","AS",2,"rw","More than 17,000 islands! Its flag looks just like Monaco's."],
+["ir","Iran","Tehran","AS",2,"grw","Once called Persia, famous for beautiful carpets."],
+["iq","Iraq","Baghdad","AS",2,"gkrw","Some of the very first cities in the world were built here."],
+["il","Israel","Jerusalem","AS",1,"bw","A blue star of David between two blue stripes."],
+["jp","Japan","Tokyo","AS",1,"rw","The red circle is the rising sun."],
+["jo","Jordan","Amman","AS",2,"gkrw","Home of Petra, a city carved into pink rock."],
+["kz","Kazakhstan","Astana","AS",2,"by","A golden eagle flies under a golden sun."],
+["kw","Kuwait","Kuwait City","AS",2,"gkrw","A tiny country with huge oil fields."],
+["kg","Kyrgyzstan","Bishkek","AS",4,"ry","A sun with the roof of a yurt tent inside it."],
+["la","Laos","Vientiane","AS",3,"brw","A white moon over the Mekong River."],
+["lb","Lebanon","Beirut","AS",2,"grw","A green cedar tree in the center."],
+["my","Malaysia","Kuala Lumpur","AS",2,"brwy","14 stripes and a 14-point star."],
+["mv","Maldives","Malé","AS",3,"grw","The flattest country on Earth, made of 1,200 tiny islands."],
+["mn","Mongolia","Ulaanbaatar","AS",2,"bry","The homeland of Genghis Khan and wild horses."],
+["mm","Myanmar","Naypyidaw","AS",3,"gry","A big white star over three stripes."],
+["np","Nepal","Kathmandu","AS",2,"brw","The only flag that isn't a rectangle! Home of Mount Everest."],
+["kp","North Korea","Pyongyang","AS",3,"brw","A red star in a white circle."],
+["om","Oman","Muscat","AS",3,"grw","Two crossed swords and a dagger on the flag."],
+["pk","Pakistan","Islamabad","AS",2,"gw","A crescent moon and star on green."],
+["ph","Philippines","Manila","AS",2,"brwy","If it's flown upside down, it means the country is at war!"],
+["qa","Qatar","Doha","AS",2,"rw","Nine white points on a dark red flag."],
+["sa","Saudi Arabia","Riyadh","AS",1,"gw","A sword and Arabic writing on green."],
+["sg","Singapore","Singapore","AS",2,"rw","A city that is also a whole country."],
+["kr","South Korea","Seoul","AS",1,"bkrw","The red and blue circle stands for balance."],
+["lk","Sri Lanka","Sri Jayawardenepura Kotte","AS",2,"gory","A golden lion holding a sword."],
+["tw","Taiwan","Taipei","AS",2,"brw","A white sun with 12 rays, one for each hour of the day."],
+["tj","Tajikistan","Dushanbe","AS",4,"grwy","A golden crown with seven stars."],
+["th","Thailand","Bangkok","AS",1,"brw","Land of smiles, elephants and golden temples."],
+["tl","Timor-Leste","Dili","AS",4,"kry","One of the youngest countries in Asia."],
+["tr","Turkey","Ankara","AS",1,"rw","A crescent and star. Its biggest city sits on two continents!"],
+["tm","Turkmenistan","Ashgabat","AS",4,"grw","Carpet patterns are woven right into the flag!"],
+["ae","United Arab Emirates","Abu Dhabi","AS",2,"gkrw","Home of the tallest building in the world."],
+["uz","Uzbekistan","Tashkent","AS",3,"bgrw","Twelve stars and a crescent moon."],
+["vn","Vietnam","Hanoi","AS",1,"ry","A big yellow star on red."],
+["ye","Yemen","Sana'a","AS",3,"krw","Three simple stripes: red, white and black."],
+["al","Albania","Tirana","EU",3,"kr","A black two-headed eagle on red."],
+["ad","Andorra","Andorra la Vella","EU",3,"bry","A tiny country in the mountains between France and Spain."],
+["at","Austria","Vienna","EU",2,"rw","Mozart's home country."],
+["by","Belarus","Minsk","EU",3,"grw","A folk pattern runs down the side of the flag."],
+["be","Belgium","Brussels","EU",2,"kry","Famous for waffles, fries and chocolate."],
+["ba","Bosnia and Herzegovina","Sarajevo","EU",3,"bwy","A yellow triangle and a line of stars."],
+["bg","Bulgaria","Sofia","EU",2,"grw","Grows most of the world's rose oil for perfume."],
+["hr","Croatia","Zagreb","EU",2,"brw","A red-and-white checkerboard shield."],
+["cz","Czechia","Prague","EU",2,"brw","A blue triangle points into white and red."],
+["dk","Denmark","Copenhagen","EU",1,"rw","The oldest flag still in use, more than 800 years old!"],
+["ee","Estonia","Tallinn","EU",2,"bkw","Blue, black and white for sky, soil and snow."],
+["fi","Finland","Helsinki","EU",1,"bw","Land of a thousand lakes and Santa's Lapland."],
+["fr","France","Paris","EU",1,"brw","Home of the Eiffel Tower!"],
+["de","Germany","Berlin","EU",1,"kry","Black, red and gold stripes."],
+["gr","Greece","Athens","EU",1,"bw","Nine stripes and a cross. The Olympics started here."],
+["hu","Hungary","Budapest","EU",2,"grw","Its capital is two cities, Buda and Pest, joined by a river."],
+["is","Iceland","Reykjavík","EU",2,"brw","Land of volcanoes, glaciers and hot springs."],
+["ie","Ireland","Dublin","EU",1,"gow","Green, white and orange, in that order."],
+["it","Italy","Rome","EU",1,"grw","Pizza and pasta were invented here!"],
+["xk","Kosovo","Pristina","EU",4,"bwy","A map of the country and six stars."],
+["lv","Latvia","Riga","EU",2,"rw","A dark red flag with a thin white stripe."],
+["li","Liechtenstein","Vaduz","EU",3,"bry","A tiny country with a golden crown on its flag."],
+["lt","Lithuania","Vilnius","EU",2,"gry","Yellow, green and red stripes."],
+["lu","Luxembourg","Luxembourg","EU",2,"brw","Looks like the Netherlands' flag but with lighter blue."],
+["mt","Malta","Valletta","EU",3,"rw","A George Cross medal in the corner."],
+["md","Moldova","Chișinău","EU",3,"bry","An eagle holding a shield in the middle."],
+["mc","Monaco","Monaco","EU",2,"rw","The second-smallest country, famous for race cars."],
+["me","Montenegro","Podgorica","EU",3,"ry","A golden eagle on red with a golden border."],
+["nl","Netherlands","Amsterdam","EU",1,"brw","Tulips, windmills and lots of bicycles."],
+["mk","North Macedonia","Skopje","EU",3,"ry","A sun with eight rays."],
+["no","Norway","Oslo","EU",1,"brw","Land of fjords and the northern lights."],
+["pl","Poland","Warsaw","EU",1,"rw","White on top, red on the bottom."],
+["pt","Portugal","Lisbon","EU",1,"gry","Great explorers sailed from here 500 years ago."],
+["ro","Romania","Bucharest","EU",2,"bry","Home of Transylvania, where the Dracula story comes from."],
+["ru","Russia","Moscow","EU",1,"brw","The biggest country in the world."],
+["sm","San Marino","San Marino","EU",4,"bw","One of the oldest republics in the world."],
+["rs","Serbia","Belgrade","EU",2,"brw","A two-headed eagle on its shield."],
+["sk","Slovakia","Bratislava","EU",2,"brw","Three mountains and a cross on its shield."],
+["si","Slovenia","Ljubljana","EU",2,"brw","Its shield shows a mountain and three stars."],
+["es","Spain","Madrid","EU",1,"ry","Red and yellow, flamenco and football!"],
+["se","Sweden","Stockholm","EU",1,"by","A yellow cross on blue."],
+["ch","Switzerland","Bern","EU",1,"rw","One of only two square flags in the world."],
+["ua","Ukraine","Kyiv","EU",1,"by","Blue sky over golden wheat fields."],
+["gb","United Kingdom","London","EU",1,"brw","The Union Jack combines three crosses."],
+["va","Vatican City","Vatican City","EU",2,"wy","The smallest country in the world."],
+["ag","Antigua and Barbuda","St. John's","NA",4,"bkrwy","365 beaches, one for every day of the year!"],
+["bs","Bahamas","Nassau","NA",2,"bky","Swimming pigs live on one of its islands."],
+["bb","Barbados","Bridgetown","NA",3,"bky","A broken trident on the flag."],
+["bz","Belize","Belmopan","NA",3,"brw","The only flag with people on it."],
+["ca","Canada","Ottawa","NA",1,"rw","A red maple leaf."],
+["cr","Costa Rica","San José","NA",2,"brw","Home to sloths, toucans and rainforests."],
+["cu","Cuba","Havana","NA",1,"brw","A white star in a red triangle."],
+["dm","Dominica","Roseau","NA",4,"gkprwy","A purple parrot on the flag!"],
+["do","Dominican Republic","Santo Domingo","NA",2,"brw","The only flag with a Bible on it."],
+["sv","El Salvador","San Salvador","NA",2,"bw","Its name means 'The Savior'."],
+["gd","Grenada","St. George's","NA",4,"gry","A nutmeg on the flag. It's called the Spice Island."],
+["gt","Guatemala","Guatemala City","NA",2,"bw","A quetzal bird sits on the flag."],
+["ht","Haiti","Port-au-Prince","NA",2,"brw","The first country founded by formerly enslaved people."],
+["hn","Honduras","Tegucigalpa","NA",2,"bw","Five stars for five Central American countries."],
+["jm","Jamaica","Kingston","NA",1,"gky","One of the only flags without red, white or blue."],
+["mx","Mexico","Mexico City","NA",1,"grw","An eagle eating a snake on a cactus."],
+["ni","Nicaragua","Managua","NA",3,"bw","A rainbow inside a triangle on its flag."],
+["pa","Panama","Panama City","NA",2,"brw","The Panama Canal connects two oceans."],
+["kn","Saint Kitts and Nevis","Basseterre","NA",4,"gkry","The smallest country in the Americas."],
+["lc","Saint Lucia","Castries","NA",4,"bkwy","Two mountain peaks called the Pitons on the flag."],
+["vc","Saint Vincent and the Grenadines","Kingstown","NA",4,"bgy","Three green diamonds in the middle."],
+["tt","Trinidad and Tobago","Port of Spain","NA",3,"krw","Home of the steel drum and Carnival."],
+["us","United States","Washington, D.C.","NA",1,"brw","50 stars for 50 states."],
+["ar","Argentina","Buenos Aires","SA",1,"bwy","A smiling sun in the middle."],
+["bo","Bolivia","Sucre","SA",2,"gry","Has a giant salt flat that looks like a mirror after rain."],
+["br","Brazil","Brasília","SA",1,"bgwy","The Amazon rainforest and football!"],
+["cl","Chile","Santiago","SA",2,"brw","One white star. It's a very long, thin country."],
+["co","Colombia","Bogotá","SA",1,"bry","The yellow stripe is twice as tall as the others."],
+["ec","Ecuador","Quito","SA",2,"bry","Named after the equator, which runs right through it."],
+["gy","Guyana","Georgetown","SA",4,"gkrwy","Its flag is called the Golden Arrowhead."],
+["py","Paraguay","Asunción","SA",2,"brw","The only flag with different pictures on each side."],
+["pe","Peru","Lima","SA",2,"rw","Home of Machu Picchu, a city in the clouds."],
+["sr","Suriname","Paramaribo","SA",4,"grwy","A big yellow star in the middle."],
+["uy","Uruguay","Montevideo","SA",2,"bwy","A sun with a face in the corner."],
+["ve","Venezuela","Caracas","SA",2,"bry","Home of Angel Falls, the tallest waterfall on Earth."],
+["au","Australia","Canberra","OC",1,"brw","Kangaroos, koalas and the Southern Cross stars."],
+["fj","Fiji","Suva","OC",3,"brwy","More than 300 islands in the Pacific."],
+["ki","Kiribati","Tarawa","OC",4,"brwy","A frigatebird flying over the sunrise."],
+["mh","Marshall Islands","Majuro","OC",4,"bow","Two rays shooting across a blue flag."],
+["fm","Micronesia","Palikir","OC",4,"bw","Four white stars on blue for four island states."],
+["nr","Nauru","Yaren","OC",4,"bwy","The third-smallest country in the world."],
+["nz","New Zealand","Wellington","OC",1,"brw","Four red stars of the Southern Cross."],
+["pw","Palau","Ngerulmud","OC",4,"by","A yellow full moon on blue."],
+["pg","Papua New Guinea","Port Moresby","OC",3,"kry","A bird of paradise on the flag."],
+["ws","Samoa","Apia","OC",3,"brw","Southern Cross stars in a blue corner."],
+["sb","Solomon Islands","Honiara","OC",4,"bgwy","Five stars and a thin yellow stripe."],
+["to","Tonga","Nukuʻalofa","OC",3,"rw","A red cross in the corner."],
+["tv","Tuvalu","Funafuti","OC",4,"brwy","Nine stars for nine islands."],
+["vu","Vanuatu","Port Vila","OC",4,"gkry","A boar's tusk on the flag."],
+];
+const FLAGS=RAW.map(r=>({code:r[0],name:r[1],capital:r[2],cont:r[3],tier:r[4],colors:r[5],fact:r[6]}));
+const BY=Object.fromEntries(FLAGS.map(f=>[f.code,f]));
+const CONT={AF:"Africa",AS:"Asia",EU:"Europe",NA:"North America",SA:"South America",OC:"Oceania"};
+const CONT_GROUPS={ALL:{name:"🌍 All",conts:null},AF:{name:"Africa",conts:["AF"]},AS:{name:"Asia",conts:["AS"]},EU:{name:"Europe",conts:["EU"]},AM:{name:"Americas",conts:["NA","SA"]},OC:{name:"Oceania",conts:["OC"]}};
+// map pin positions on an 800x400 equirectangular map
+const MAPXY={"ad":[403.4,105.6],"ae":[520.7,146.9],"ag":[262.7,162],"al":[444.6,108.6],"am":[499.9,110.5],"ao":[439,227.3],"ar":[256.1,277.1],"at":[431.4,94.2],"au":[674.6,227.6],"az":[505.7,110.5],"ba":[439.5,101.8],"bb":[267.8,170.7],"bd":[600.5,147],"be":[410.3,87.5],"bf":[396.1,172.7],"bg":[456,105],"bh":[512.3,142.2],"bi":[466.4,207.5],"bj":[405.2,178.6],"bn":[654.9,190],"bo":[256.2,237.1],"br":[281.7,223.6],"bs":[229.8,146],"bt":[600.9,139.1],"bw":[452.9,249.3],"by":[462.3,81.1],"bz":[202.9,161.8],"ca":[185.4,65.7],"cd":[452.5,206.4],"cf":[445.5,185.4],"cg":[433.8,201.9],"ch":[418.2,96],"ci":[387.6,183.1],"cl":[242.1,280.2],"cm":[428.3,187.4],"cn":[629.7,118.5],"co":[237.6,191.3],"cr":[212.9,177.8],"cu":[224.5,151.9],"cv":[347.6,166.4],"cy":[473.3,122.4],"cz":[434,89.5],"de":[423,86.6],"dj":[494.6,173.9],"dk":[422.3,75.6],"dm":[263.6,165.8],"do":[243.3,158],"dz":[405.8,137.7],"ec":[225,203.2],"ee":[456.8,69.6],"eg":[466.4,141.2],"er":[486.3,165.9],"es":[391.8,110.7],"et":[488,180.9],"fi":[458.2,57.2],"fj":[795.6,239.6],"fm":[751.6,184.7],"fr":[405.1,96.4],"ga":[426.2,201.3],"gb":[393.9,80],"gd":[262.9,173.1],"ge":[496.7,106.3],"gh":[397.3,182.3],"gm":[365.8,170.1],"gn":[375.7,176.8],"gq":[423,196.2],"gr":[451,113.2],"gt":[199.2,165.1],"gw":[366.8,173.2],"gy":[268.9,189.4],"hn":[207.5,167],"hr":[436.4,99.8],"ht":[238.5,157.9],"hu":[443.1,95.2],"id":[660.4,205],"ie":[381.9,81.9],"il":[477.8,130.1],"in":[576.8,149.4],"iq":[497.3,126.6],"ir":[521,127.7],"is":[358.7,55.6],"it":[427.1,105.1],"jm":[228.2,159.7],"jo":[481.7,130.6],"jp":[705.9,116.8],"ke":[484,198.7],"kg":[565.6,107.8],"kh":[633.1,171.7],"ki":[784.4,196.9],"km":[497.6,226.4],"kn":[260.7,161.6],"kp":[682.6,110.8],"kr":[684.1,119.2],"kw":[505.8,134.8],"kz":[549.4,92.5],"la":[630.6,158.9],"lb":[479.7,124.6],"lc":[264.4,169.1],"li":[421.2,95.2],"lk":[579.3,183.1],"lr":[379.3,185.7],"ls":[462.7,265.7],"lt":[453.1,77.1],"lu":[413.5,89.4],"lv":[455.4,73.6],"ly":[440.1,140],"ma":[380.6,133.9],"mc":[416.5,102.8],"md":[463.3,95.1],"me":[442.8,104.9],"mg":[503.9,242.9],"mh":[780.4,184.2],"mk":[448.2,107.6],"ml":[392,161.5],"mm":[614.4,153.1],"mn":[629.2,95.7],"mr":[377,155.1],"mt":[432.2,120.2],"mu":[527.8,245.1],"mv":[563.3,190.7],"mw":[476.2,229.3],"mx":[173,146.8],"my":[643.8,191.5],"mz":[479.1,238.2],"na":[438.2,249],"ne":[420.7,161.3],"ng":[418,178.7],"ni":[211,171.5],"nl":[411.8,84],"no":[420,64.4],"np":[586.5,137.2],"nr":[770.9,201.1],"nz":[784.3,292.7],"om":[524.6,154.3],"pa":[222,181.1],"pe":[234.6,220.2],"pg":[722.7,214.4],"ph":[673.2,173.9],"pk":[553.7,133.6],"pl":[443.2,84.2],"pt":[381,112],"pw":[698.9,183.3],"py":[270.1,251.6],"qa":[513.7,143.8],"ro":[455.5,98.1],"rs":[446.2,101.8],"ru":[533.3,66.7],"rw":[466.5,204.4],"sa":[499.3,146.5],"sb":[754.7,219.8],"sc":[523.3,210.2],"sd":[466.5,164.5],"se":[436.1,61.4],"sg":[630.7,197],"si":[432.9,97.5],"sk":[443.3,91.8],"sl":[373.8,181],"sm":[427.7,102.4],"sn":[367.8,168.1],"so":[501.5,189.5],"sr":[275.7,190.8],"ss":[467.2,183.8],"st":[414.7,199.3],"sv":[202.5,169.5],"sz":[470,259],"td":[441.4,166.1],"tg":[402.1,181.1],"th":[624.4,166.5],"tj":[557.8,114.4],"tl":[679.7,219.6],"tm":[532.1,113.1],"tn":[421.2,124.2],"to":[10.7,247.1],"tr":[478.2,113],"tt":[263.9,176.8],"tv":[798.2,218.9],"tw":[668.8,147.2],"tz":[477.3,213.9],"ua":[469.6,90.7],"ug":[471.9,197.2],"us":[181.1,111.6],"uy":[275.5,272.9],"uz":[540.7,107.2],"va":[427.7,106.9],"vc":[264,170.7],"ve":[253,184.2],"vn":[636.3,163.2],"vu":[772.6,236],"ws":[17.6,230.7],"xk":[446.4,105.3],"ye":[505.7,164.6],"za":[456,264.4],"zm":[461.8,229.9],"zw":[466.3,242.2]};
+
+// Historical flags: [id, name, capital, continent, era, modern country for the map pin, tier, colors, fact]
+const HIST_RAW=[
+["ussr","Soviet Union","Moscow","EU","1922–1991","ru",1,"ry","One flag for 15 countries that are now separate, including Russia and Ukraine."],
+["qing","Qing Dynasty China","Beijing","AS","1889–1912","cn",2,"bry","A blue dragon chasing a red pearl. China's last emperors ruled under this flag."],
+["korea","Korean Empire","Seoul","AS","1897–1910","kr",2,"bkrw","An early version of today's South Korean flag, with the same red-and-blue circle."],
+["mongolia","Mongolian People's Republic","Ulaanbaatar","AS","1945–1992","mn",3,"bry","Like today's Mongolian flag, but with a star on top of the golden symbol."],
+["us1777","United States (13 stars)","Philadelphia","NA","1777–1795","us",1,"brw","The Betsy Ross flag: 13 stars in a circle for the 13 original colonies."],
+["us1795","United States (15 stars)","Washington, D.C.","NA","1795–1818","us",2,"brw","The Star-Spangled Banner! This 15-star, 15-stripe flag inspired the national anthem."],
+["us1912","United States (48 stars)","Washington, D.C.","NA","1912–1959","us",1,"brw","48 stars, before Alaska and Hawaii became states."],
+["ottoman","Ottoman Empire","Constantinople","AS","1844–1922","tr",2,"rw","An empire that lasted 600 years. Its flag became Turkey's flag."],
+["austriahungary","Austria-Hungary","Vienna","EU","1869–1918","at",3,"grw","Two countries with one emperor, so the flag has two coats of arms."],
+["germanempire","German Empire","Berlin","EU","1871–1918","de",2,"krw","Black, white and red stripes, before Germany's black, red and gold."],
+["italykingdom","Kingdom of Italy","Rome","EU","1861–1946","it",2,"grw","Italy's flag with the royal family's shield in the middle."],
+["brazilempire","Empire of Brazil","Rio de Janeiro","SA","1822–1889","br",2,"gy","Brazil once had an emperor! The green and yellow diamond is still on today's flag."],
+["grancolombia","Gran Colombia","Bogotá","SA","1819–1831","co",3,"bry","One country that became Colombia, Venezuela, Ecuador and Panama."],
+["ethiopiaempire","Ethiopian Empire","Addis Ababa","AF","1897–1974","et",3,"gry","The Lion of Judah carrying a flag, on the stripes Ethiopia still uses."],
+["egyptkingdom","Kingdom of Egypt","Cairo","AF","1922–1953","eg",3,"gw","A crescent and three stars on green, from when Egypt had a king."],
+["yugoslavia","Yugoslavia","Belgrade","EU","1946–1992","rs",2,"brwy","One country that split into seven: Serbia, Croatia, Slovenia and more."],
+["eastgermany","East Germany","East Berlin","EU","1959–1990","de",2,"kry","Germany was split in two for 41 years. This was the eastern half's flag."],
+["zaire","Zaire","Kinshasa","AF","1971–1997","cd",3,"gry","An arm holding a torch. Today this country is DR Congo."],
+["china1912","Republic of China (five colors)","Beijing","AS","1912–1928","cn",3,"bkrwy","Five stripes for five peoples of China, after the last emperor gave up his throne."],
+["francekingdom","Kingdom of France","Paris","EU","before 1792","fr",2,"by","Golden fleurs-de-lis (lily flowers) on blue: the flag of the French kings."],
+["spanishempire","Spanish Empire","Madrid","EU","1500s–1700s","es",2,"rw","The Cross of Burgundy flew over Spanish ships and forts from Florida to the Philippines."],
+["rome","Roman Empire","Rome","EU","ancient","it",1,"ry","SPQR means 'The Senate and People of Rome'. Roman soldiers marched behind it."],
+["byzantine","Byzantine Empire","Constantinople","EU","1300s–1453","tr",3,"ry","Four letters B for 'King of Kings, ruling over Kings'."],
+["hre","Holy Roman Empire","Vienna","EU","1400–1806","de",3,"ky","A double-headed eagle looking east and west."],
+["hawaii","Kingdom of Hawaii","Honolulu","OC","1845–1893","us",2,"brw","Hawaii was a kingdom with its own kings and queens. It's still the state flag today!"],
+["texas","Republic of Texas","Austin","NA","1839–1845","us",1,"brw","Texas was its own country for nine years before joining the USA."],
+["persia","Imperial Iran (Persia)","Tehran","AS","1964–1979","ir",3,"grw","A lion holding a sword under a rising sun."],
+["prussia","Kingdom of Prussia","Berlin","EU","1892–1918","de",3,"kw","A black eagle on white. Prussia helped create modern Germany."],
+["venice","Republic of Venice","Venice","EU","697–1797","it",2,"ry","A winged lion for the city of canals, a republic for 1,100 years."],
+["mexicoempire","Second Mexican Empire","Mexico City","NA","1864–1867","mx",3,"grw","Mexico briefly had an emperor named Maximilian. Four eagles in the corners!"],
+["portugalkingdom","Kingdom of Portugal","Lisbon","EU","1830–1910","pt",3,"bw","Blue and white with a crown, before Portugal became a republic."],
+];
+const HIST_ORDER="austriahungary,brazilempire,byzantine,china1912,eastgermany,egyptkingdom,ethiopiaempire,francekingdom,germanempire,grancolombia,hawaii,hre,italykingdom,korea,mexicoempire,mongolia,ottoman,persia,portugalkingdom,prussia,qing,rome,spanishempire,texas,us1777,us1795,us1912,ussr,venice,yugoslavia,zaire".split(",");
+// US states: [code, name, capital, fact]
+const STATES_RAW=[
+["al","Alabama","Montgomery","The first rockets to the Moon were built in Huntsville."],["ak","Alaska","Juneau","The biggest state, bought from Russia for about 2 cents an acre."],["az","Arizona","Phoenix","Home of the Grand Canyon."],["ar","Arkansas","Little Rock","You can dig for real diamonds in a state park here."],["ca","California","Sacramento","The bear on the flag is a grizzly. Home of Hollywood."],["co","Colorado","Denver","Has more than 50 mountains over 14,000 feet tall."],["ct","Connecticut","Hartford","The first hamburger and the first lollipop were made here."],["de","Delaware","Dover","The first state to join the USA, in 1787."],["fl","Florida","Tallahassee","Alligators, beaches and the Kennedy Space Center."],["ga","Georgia","Atlanta","The Peach State, birthplace of Martin Luther King Jr."],["hi","Hawaii","Honolulu","The only state made of islands, with active volcanoes."],["id","Idaho","Boise","Grows more potatoes than any other state."],["il","Illinois","Springfield","Home of Chicago and its giant shiny 'Bean' sculpture."],["in","Indiana","Indianapolis","Home of the Indy 500 car race."],["ia","Iowa","Des Moines","Grows more corn than any other state."],["ks","Kansas","Topeka","Where Dorothy lived in The Wizard of Oz."],["ky","Kentucky","Frankfort","Famous for fast horses and the Kentucky Derby."],["la","Louisiana","Baton Rouge","New Orleans, jazz music and Mardi Gras parades."],["me","Maine","Augusta","Lobsters, lighthouses and the first sunrise in the USA."],["md","Maryland","Annapolis","One of the boldest flags, from an old family's coat of arms."],["ma","Massachusetts","Boston","The Pilgrims landed here in 1620."],["mi","Michigan","Lansing","Touches four of the five Great Lakes."],["mn","Minnesota","Saint Paul","Land of 10,000 lakes. Brand-new flag in 2024!"],["ms","Mississippi","Jackson","Named after the mighty Mississippi River. New flag in 2021."],["mo","Missouri","Jefferson City","The Gateway Arch in St. Louis is 630 feet tall."],["mt","Montana","Helena","Big Sky Country, with grizzly bears and glaciers."],["ne","Nebraska","Lincoln","More miles of river than any other state."],["nv","Nevada","Carson City","Home of Las Vegas, and mostly desert."],["nh","New Hampshire","Concord","Its motto is 'Live Free or Die'."],["nj","New Jersey","Trenton","The first baseball game was played here in 1846."],["nm","New Mexico","Santa Fe","The red sun symbol comes from the Zia people."],["ny","New York","Albany","Home of the Statue of Liberty and New York City."],["nc","North Carolina","Raleigh","The Wright brothers made the first airplane flight here."],["nd","North Dakota","Bismarck","Has more wildlife refuges than any other state."],["oh","Ohio","Columbus","The only state flag that isn't a rectangle."],["ok","Oklahoma","Oklahoma City","A Native American shield with an olive branch and peace pipe."],["or","Oregon","Salem","The only state flag with a different picture on the back: a beaver!"],["pa","Pennsylvania","Harrisburg","The Declaration of Independence was signed in Philadelphia."],["ri","Rhode Island","Providence","The smallest state. The anchor means hope."],["sc","South Carolina","Columbia","A palmetto tree and a crescent moon."],["sd","South Dakota","Pierre","Home of Mount Rushmore's four giant presidents."],["tn","Tennessee","Nashville","Three stars for its three regions. Music City!"],["tx","Texas","Austin","The Lone Star State, once its own country."],["ut","Utah","Salt Lake City","A beehive for hard work. Brand-new flag in 2024!"],["vt","Vermont","Montpelier","Makes more maple syrup than any other state."],["va","Virginia","Richmond","Birthplace of eight U.S. presidents."],["wa","Washington","Olympia","The only green state flag, with George Washington on it."],["wv","West Virginia","Charleston","The Mountain State, almost entirely covered in hills."],["wi","Wisconsin","Madison","America's Dairyland, famous for cheese."],["wy","Wyoming","Cheyenne","Home of Yellowstone, the first national park."],
+];
+const STATES_ORDER=STATES_RAW.map(s=>s[0]).sort();
+const HFLAGS=HIST_RAW.map(r=>({code:"h_"+r[0],hid:r[0],name:r[1],capital:r[2],cont:r[3],era:r[4],map:r[5],tier:r[6],colors:r[7],fact:r[8],hist:true}));
+const STATES=STATES_RAW.map(r=>({code:"s_"+r[0],sid:r[0],name:r[1],capital:r[2],fact:r[3]}));
+HFLAGS.forEach(f=>BY[f.code]=f);STATES.forEach(f=>BY[f.code]=f);
+
+/* sprite sheets: sliced into per-flag image URLs once loaded */
+const SPRITES={};
+function loadSprite(file,ids,cols,cw,ch,prefix){
+ const im=new Image();im.onload=()=>{ids.forEach((id,i)=>{const c=document.createElement("canvas");c.width=cw;c.height=ch;c.getContext("2d").drawImage(im,(i%cols)*cw,Math.floor(i/cols)*ch,cw,ch,0,0,cw,ch);
+  c.toBlob(b=>{if(b){SPRITES[prefix+id]=URL.createObjectURL(b);document.querySelectorAll(`img[data-flag="${prefix+id}"]`).forEach(el=>el.src=SPRITES[prefix+id])}},"image/jpeg",.9)})};
+ im.src=file;
+}
+loadSprite("hist.jpg",HIST_ORDER,4,480,360,"h_");
+loadSprite("states.jpg",STATES_ORDER,5,480,320,"s_");
+const flagSrc=c=>c.startsWith("h_")||c.startsWith("s_")?(SPRITES[c]||""):`flags/${c}.svg`;
+const flagAttr=c=>`src="${flagSrc(c)}" data-flag="${c}"`;
+
+const LEVELS=[
+ {name:"Easy",emoji:"🙂",tiers:[1],choices:4,reveal:10,blur:3,gray:false,distract:"random",fx:"",desc:"40 famous flags · 4 choices · slow reveal"},
+ {name:"Medium",emoji:"😎",tiers:[1,2],choices:4,reveal:9,blur:5,gray:false,distract:"continent",fx:"",desc:"About 100 flags · choices from the same continent"},
+ {name:"Hard",emoji:"😤",tiers:[1,2,3],choices:4,reveal:8,blur:6,gray:false,distract:"continent",fx:"",desc:"Over 150 flags · faster reveal"},
+ {name:"Ridiculously Hard",emoji:"🤯",tiers:[1,2,3,4],choices:4,reveal:7,blur:8,gray:true,distract:"lookalike",fx:"",desc:"Every flag · look-alike choices · colors fade in slowly"},
+ {name:"Stupidly Hard",emoji:"🫠",tiers:[2,3,4],choices:6,reveal:6,blur:8,gray:true,distract:"lookalike",fx:"",desc:"No easy flags · 6 look-alike choices"},
+ {name:"Uncontrollable Vomiting Hard",emoji:"🤮",tiers:[2,3,4],choices:6,reveal:6,blur:8,gray:true,distract:"lookalike",fx:"fx-wobble",desc:"The flag wobbles and lurches. Don't get seasick!"},
+ {name:"Spinning Cat Hard",emoji:"🐱",tiers:[3,4],choices:6,reveal:5,blur:9,gray:true,distract:"lookalike",fx:"fx-spin",desc:"Only rare flags · the flag spins · a spinning cat sits in the corner for no educational reason whatsoever."},
+ {name:"IMPOSSIBLE",emoji:"💀",tiers:[3,4],choices:8,reveal:4,blur:10,gray:true,distract:"lookalike",fx:"fx-chaos",desc:"Upside down, spinning, tiny, 8 choices, 4-second reveal. Good luck."},
+];
+const STYLES={
+ classic:{name:"Puzzle tiles",desc:"Colorful tiles flip away to uncover the flag in five stages."},
+ spotlight:{name:"Spotlight",desc:"Spotlights open on the flag and grow bigger each stage."},
+ zoom:{name:"Mystery Zoom",desc:"Start with an extremely zoomed-in piece of the flag, then zoom out."},
+ flip:{name:"Upside-Down",desc:"Every flag appears rotated. It flips the right way up after you answer."},
+ lookalike:{name:"Look-alikes",desc:"Choices are flags that look alike: Romania & Chad, Indonesia & Monaco, Ireland & Ivory Coast…"},
+ morph:{name:"Morph",desc:"A different flag slowly melts into the mystery flag, stage by stage. The flag it starts as is one of the wrong answers!"},
+ mix:{name:"Mix it up",desc:"A random style for every flag. Anything can happen!"}
+};
+const MIX_STYLES=["classic","spotlight","zoom","flip","lookalike","morph"];
+const BONUS={
+ capital:{name:"Capital Quest",desc:"3 questions: name the capital of a flag you just saw. +3 points each, no penalty."},
+ lightning:{name:"Lightning Round",desc:"20 seconds. Flags appear instantly. +1 point each, no penalty. Go go go!"},
+ states:{name:"US States",desc:"5 state flags from the USA. +2 points each, no penalty."},
+ off:{name:"No bonus",desc:"Straight to the scoreboard."}
+};
+const AVATARS=[
+ {id:"einstein",name:"Albert Einstein",emoji:"🧑‍🔬",from:"Germany",bg:"#7B5CFF",pos:"50% 22%",bio:"A scientist whose ideas explain how space, time and energy work. E = mc²!"},
+ {id:"cleopatra",name:"Cleopatra",emoji:"👑",from:"Egypt",bg:"#FFD23F",pos:"50% 30%",bio:"The last queen of ancient Egypt. She could speak nine languages."},
+ {id:"caesar",name:"Julius Caesar",emoji:"🏛️",from:"Ancient Rome",bg:"#FF5E5B",pos:"50% 30%",bio:"A Roman general who became the most powerful man in Rome. July is named after him!"},
+ {id:"amelia",name:"Amelia Earhart",emoji:"✈️",from:"United States",bg:"#00A8E8",pos:"50% 30%",bio:"The first woman to fly alone across the Atlantic Ocean."},
+ {id:"davinci",name:"Leonardo da Vinci",emoji:"🎨",from:"Italy",bg:"#2D7DD2",pos:"50% 30%",bio:"Painted the Mona Lisa and sketched flying machines 400 years before airplanes."},
+ {id:"curie",name:"Marie Curie",emoji:"⚗️",from:"Poland",bg:"#2BB673",pos:"50% 25%",bio:"Discovered two elements and won two Nobel Prizes, the first person ever to do that."},
+ {id:"frida",name:"Frida Kahlo",emoji:"🌺",from:"Mexico",bg:"#E84393",pos:"50% 25%",bio:"A painter famous for colorful self-portraits full of flowers, monkeys and parrots."},
+ {id:"pele",name:"Pelé",emoji:"⚽",from:"Brazil",bg:"#43A047",pos:"50% 18%",bio:"The king of soccer. He won three World Cups."},
+ {id:"confucius",name:"Confucius",emoji:"📜",from:"China",bg:"#F28C28",pos:"50% 20%",bio:"A wise teacher whose sayings about kindness are still read 2,500 years later."},
+ {id:"musa",name:"Mansa Musa",emoji:"💰",from:"Mali",bg:"#E0B31C",pos:"50% 25%",bio:"Emperor of Mali and maybe the richest person who ever lived."},
+ {id:"genghis",name:"Genghis Khan",emoji:"🐎",from:"Mongolia",bg:"#8D6E63",pos:"50% 25%",bio:"Built the largest land empire in history, all on horseback."},
+ {id:"gandhi",name:"Mahatma Gandhi",emoji:"🕊️",from:"India",bg:"#F5A623",pos:"50% 25%",bio:"Led India to freedom using peace instead of fighting."},
+ {id:"mandela",name:"Nelson Mandela",emoji:"✊",from:"South Africa",bg:"#1E8F58",pos:"50% 30%",bio:"Spent 27 years in prison, then became South Africa's first Black president."},
+ {id:"joan",name:"Joan of Arc",emoji:"⚔️",from:"France",bg:"#5C6BC0",pos:"50% 25%",bio:"A teenage farm girl who led the French army to victory."},
+ {id:"newton",name:"Isaac Newton",emoji:"🍎",from:"England",bg:"#D9413F",pos:"50% 25%",bio:"Figured out gravity. The story says an apple fell on his head!"},
+ {id:"ada",name:"Ada Lovelace",emoji:"💻",from:"England",bg:"#9C27B0",pos:"50% 20%",bio:"Wrote the very first computer program, 100 years before computers existed."},
+ {id:"battuta",name:"Ibn Battuta",emoji:"🗺️",from:"Morocco",bg:"#26A69A",pos:"50% 40%",bio:"Traveled 75,000 miles across Africa and Asia on foot, camel and boat."},
+ {id:"hokusai",name:"Hokusai",emoji:"🌊",from:"Japan",bg:"#1F5FA3",pos:"50% 25%",bio:"The artist who painted The Great Wave, one of the most famous pictures ever."},
+ {id:"bolivar",name:"Simón Bolívar",emoji:"🐴",from:"Venezuela",bg:"#FFB300",pos:"50% 25%",bio:"Helped six South American countries win their independence."},
+ {id:"mozart",name:"Wolfgang Mozart",emoji:"🎼",from:"Austria",bg:"#EC407A",pos:"50% 25%",bio:"Composed his first music when he was only five years old!"},
+ {id:"wangari",name:"Wangari Maathai",emoji:"🌳",from:"Kenya",bg:"#689F38",pos:"50% 35%",bio:"Planted millions of trees across Africa and won the Nobel Peace Prize."},
+ {id:"sejong",name:"Sejong the Great",emoji:"📖",from:"Korea",bg:"#3F51B5",pos:"50% 30%",bio:"A king who invented the Korean alphabet so everyone could learn to read."},
+];
+const CREDITS={einstein:"Oren Jack Turner, public domain",cleopatra:"Louis le Grand (bust photo), public domain",caesar:"Ángel M. Felicísimo (bust photo), public domain",amelia:"Underwood & Underwood, public domain",davinci:"Attributed to Francesco Melzi, public domain",curie:"Henri Manuel, public domain",frida:"Guillermo Kahlo, public domain",pele:"Unknown author, public domain",confucius:"Anonymous Han-dynasty painter, public domain",musa:"Catalan Atlas, attributed to Abraham Cresques, public domain",genghis:"Yuan-dynasty album portrait, public domain",gandhi:"Elliott & Fry, public domain",mandela:"Kingkongphoto & celebrity-photos.com, CC BY-SA 2.0",joan:"Medieval manuscript miniature, public domain",newton:"Godfrey Kneller, public domain",ada:"Antoine Claudet, public domain",battuta:"Léon Benett engraving, public domain",hokusai:"CC0 via Wikimedia Commons",bolivar:"Luis Enrique Toro Moreno, public domain",mozart:"Johann Nepomuk della Croce, public domain",wangari:"Kingkongphoto & celebrity-photos.com, CC BY-SA 2.0",sejong:"Statue photo by Marsilar, CC BY-SA 4.0"};
+const STARTER_LEGENDS=8;
+const LETTERS="ABCDEFGH";
+const STAGE_TILES=[3,8,14,20,24];
+const STAGE_ZOOM=[6,3.6,2.3,1.5,1];
+const STAGE_SPOT=[[26,0,0],[44,28,0],[62,46,30],[90,74,58],[700,700,700]];
+const STAGE_MORPH=[.85,.65,.45,.22,0];
+const STAGE_PTS=[5,4,3,2,1];
+const TILE_N=24;
+const TILE_COLORS=["#FF5E5B","#FFD23F","#2BB673","#2D7DD2","#7B5CFF","#FF8C42"];
+const DEFAULT_SETTINGS={minutes:2,level:0,bonus:"capital",style:"classic",cont:"ALL",sound:true,speak:false,practiceTimed:false,practiceAuto:true,hist:false,blitzCount:20};
+
+/* ---------- STORAGE ---------- */
+const store={
+ get(k,d){try{const v=localStorage.getItem("ff_"+k);return v?JSON.parse(v):d}catch(e){return d}},
+ set(k,v){try{localStorage.setItem("ff_"+k,JSON.stringify(v))}catch(e){}}
+};
+
+/* ---------- STATE ---------- */
+const S={
+ mode:"two",
+ players:[{name:"",avatar:{type:"hist",id:"einstein"}},{name:"",avatar:{type:"hist",id:"cleopatra"}}],
+ settings:{...DEFAULT_SETTINGS},
+ custom:[],profiles:[],unlocked:STARTER_LEGENDS,order:[],cur:0,results:[]
+};
+let R=null,B=null;
+let collection=new Set(store.get("collection",[]));
+
+/* ---------- HELPERS ---------- */
+const $=id=>document.getElementById(id);
+const shuffle=(a,rnd=Math.random)=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(rnd()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const mulberry32=s=>()=>{s|=0;s=s+0x6D2B79F5|0;let t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296};
+const flagEmoji=c=>c.startsWith("h_")?"🏛️":c.startsWith("s_")?"🇺🇸":String.fromCodePoint(...[...c.toUpperCase()].map(ch=>0x1F1E6+ch.charCodeAt(0)-65));
+const fmt=s=>{s=Math.max(0,Math.ceil(s));return Math.floor(s/60)+":"+String(s%60).padStart(2,"0")};
+const legend=av=>AVATARS.find(a=>a.id===av.id)||AVATARS[0];
+const esc=s=>String(s??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/"/g,"&quot;");
+const whereTxt=f=>f.hist?f.era:CONT[f.cont];
+function avatarHTML(av,cls=""){
+ if(av.type==="custom")return `<div class="avatar ${cls}"><img src="${av.data}" alt="" style="object-position:50% 50%"></div>`;
+ const h=legend(av);return `<div class="avatar ${cls}" style="background:${h.bg}"><span class="em">${h.emoji}</span><img src="legends/${h.id}.jpg" alt="" style="object-position:${h.pos}" onerror="this.remove()"></div>`;
+}
+const avatarName=av=>av.type==="custom"?"":legend(av).name;
+const playerName=i=>S.players[i].name.trim()||avatarName(S.players[i].avatar)||("Player "+(i+1));
+function showScreen(id){document.querySelectorAll(".screen").forEach(s=>s.classList.toggle("on",s.id===id));window.scrollTo(0,0);
+ const fx=LEVELS[S.settings.level].fx;$("catrun").classList.toggle("on",(id==="s-play")&&/fx-spin|fx-chaos/.test(fx))}
+let flashT=null;function flash(msg){const f=$("flash");f.textContent=msg;f.classList.remove("on");void f.offsetWidth;f.classList.add("on");clearTimeout(flashT);flashT=setTimeout(()=>f.classList.remove("on"),1800)}
+let cfCb=null;
+function askConfirm(title,msg,yes,no,cb,noCb){$("cfTitle").textContent=title;$("cfMsg").textContent=msg;$("cfYes").textContent=yes;$("cfNo").textContent=no;cfCb=cb;$("cfNo").onclick=()=>{$("confirmModal").classList.remove("on");cfCb=null;if(noCb)noCb()};$("confirmModal").classList.add("on")}
+$("cfYes").onclick=()=>{$("confirmModal").classList.remove("on");const cb=cfCb;cfCb=null;if(cb)cb()};
+
+/* ---------- AUDIO ---------- */
+let AC=null;
+function tone(freq,dur,type="sine",vol=.18,when=0){
+ if(!S.settings.sound)return;
+ try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();if(AC.state==="suspended")AC.resume();
+  const o=AC.createOscillator(),g=AC.createGain();o.type=type;o.frequency.value=freq;
+  const t=AC.currentTime+when;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(vol,t+.01);g.gain.exponentialRampToValueAtTime(.0001,t+dur);
+  o.connect(g).connect(AC.destination);o.start(t);o.stop(t+dur+.05)}catch(e){}
+}
+const sfx={
+ correct(){tone(660,.12,"triangle",.2);tone(880,.18,"triangle",.2,.1);tone(1320,.25,"triangle",.2,.2)},
+ wrong(){tone(200,.25,"sawtooth",.12);tone(150,.35,"sawtooth",.12,.15)},
+ pass(){tone(400,.1,"sine",.1)},
+ tick(){tone(1000,.05,"square",.06)},
+ stage(){tone(520,.06,"sine",.07)},
+ warn(){[0,.18,.36].forEach(w=>tone(1200,.12,"square",.16,w))},
+ timeup(){tone(600,.2,"square",.15);tone(450,.2,"square",.15,.2);tone(300,.5,"square",.15,.4)},
+ fanfare(){[523,659,784,1047].forEach((f,i)=>tone(f,.3,"triangle",.2,i*.13));tone(1047,.7,"triangle",.2,.55)},
+ streak(){[880,1100,1320,1760].forEach((f,i)=>tone(f,.1,"sine",.15,i*.07))},
+ tap(){tone(500,.05,"sine",.08)}
+};
+function speak(text,force){
+ if(!(force||S.settings.speak))return;
+ try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.rate=1;speechSynthesis.speak(u)}catch(e){}
+}
+
+/* ---------- HOME ---------- */
+function renderPlayers(){
+ const box=$("players");const n=S.mode==="two"?2:1;box.classList.toggle("solo",n===1);
+ const profOpts=S.profiles.map((p,j)=>`<option value="${j}">${esc(p.name)}</option>`).join("");
+ const who={two:i=>"Player "+(i+1),solo:()=>"Solo player",practice:()=>"Practicing",blitz:()=>"Blitz player",online:()=>"You"}[S.mode];
+ box.innerHTML=S.players.slice(0,n).map((p,i)=>`
+  <div class="pcard">
+   <div class="who">${who(i)}</div>
+   <button class="avbtn" data-pick="${i}" aria-label="Choose your Legend or photo">${avatarHTML(p.avatar)}</button>
+   <div class="avname">${avatarName(p.avatar)||"My photo"}</div>
+   <input id="pname${i}" placeholder="Type your name" value="${esc(p.name)}" maxlength="16" aria-label="Player name">
+   ${S.profiles.length?`<select id="prof${i}" data-p="${i}" aria-label="Load a saved player"><option value="">👥 Load a saved player…</option>${profOpts}</select>`:""}
+   <div class="mini-row"><button class="btn sm ghost" data-pick="${i}">🎭 Change Legend</button><button class="btn sm ghost" data-save="${i}">💾 Save player</button></div>
+  </div>`).join("");
+ box.querySelectorAll("[data-pick]").forEach(b=>b.onclick=()=>openAvatar(+b.dataset.pick));
+ box.querySelectorAll("[data-save]").forEach(b=>b.onclick=()=>saveProfile(+b.dataset.save,true));
+ box.querySelectorAll("input").forEach((inp,i)=>inp.oninput=()=>{S.players[i].name=inp.value;savePlayers()});
+ box.querySelectorAll("select").forEach(sel=>sel.onchange=()=>{const p=S.profiles[+sel.value];if(!p)return;const i=+sel.dataset.p;S.players[i]={name:p.name,avatar:JSON.parse(JSON.stringify(p.avatar))};savePlayers();renderPlayers();sfx.tap();flash(`Welcome back, ${p.name}!`)});
+}
+function saveProfile(i,loud){
+ const nm=S.players[i].name.trim();
+ if(!nm){if(loud)flash("Type a name first, then save");return}
+ const j=S.profiles.findIndex(p=>p.name.toLowerCase()===nm.toLowerCase());
+ const rec={name:nm,avatar:JSON.parse(JSON.stringify(S.players[i].avatar))};
+ if(j>=0)S.profiles[j]=rec;else S.profiles.push(rec);
+ if(S.profiles.length>12)S.profiles.shift();
+ store.set("profiles",S.profiles);
+ if(loud){flash(`Saved ${nm} ✓`);sfx.correct();renderPlayers()}
+}
+function renderLevels(){
+ $("levels").innerHTML=LEVELS.map((l,i)=>`<button class="chip ${i===S.settings.level?"on":""}" data-l="${i}">${l.emoji} ${l.name}</button>`).join("");
+ $("levels").querySelectorAll(".chip").forEach(c=>c.onclick=()=>{S.settings.level=+c.dataset.l;saveSettings();renderLevels();sfx.tap()});
+ $("lvlDesc").textContent=LEVELS[S.settings.level].desc;
+}
+function renderHome(){
+ document.querySelectorAll("#modes .mode").forEach(m=>m.classList.toggle("on",m.dataset.mode===S.mode));
+ $("modeDesc").textContent={two:"Take turns. Highest score wins the crown! 👑",solo:"Just you against the clock. Beat your best score!",practice:"No pressure, no lost points. Learn flags at your own pace.",blitz:"⚡ Flag Blitz: full flags, no reveal. How fast can you name them?",online:"🌐 Two tablets, same flags, same time. Live scores. Winner at the buzzer!"}[S.mode];
+ renderPlayers();renderLevels();
+ $("timeVal").textContent=fmt(S.settings.minutes*60);$("timeRange").value=S.settings.minutes;
+ const isP=S.mode==="practice",isB=S.mode==="blitz",isO=S.mode==="online";
+ $("onlinePanel").hidden=!isO;$("btnStart").hidden=isO;$("onlineStatus").textContent="";
+ $("practiceTimedRow").hidden=!isP;$("practiceAutoRow").hidden=!isP;$("blitzRow").hidden=!isB;
+ $("timeRange").hidden=isB||(isP&&!S.settings.practiceTimed);$("timeVal").hidden=isB||(isP&&!S.settings.practiceTimed);
+ $("setTime").querySelector(".label").textContent=isB?"⚡ Flag Blitz":"⏱ Round time";
+ $("swPracticeTimed").classList.toggle("on",S.settings.practiceTimed);$("swPracticeAuto").classList.toggle("on",S.settings.practiceAuto);
+ $("blitzChips").querySelectorAll(".chip").forEach(c=>c.classList.toggle("on",+c.dataset.n===S.settings.blitzCount));
+ $("setBonus").hidden=isP||isB||isO;
+ document.querySelectorAll("#bonusChips .chip").forEach(c=>c.classList.toggle("on",c.dataset.bonus===S.settings.bonus));
+ $("bonusDesc").textContent=BONUS[S.settings.bonus].desc;
+ document.querySelectorAll("#styleChips .chip").forEach(c=>{c.classList.toggle("on",c.dataset.style===S.settings.style);c.disabled=isB});
+ $("styleDesc").textContent=isB?"Flag Blitz shows every flag in full, so reveal styles are off.":STYLES[S.settings.style].desc;
+ $("contChipsHome").innerHTML=Object.entries(CONT_GROUPS).map(([k,g])=>`<button class="chip ${k===S.settings.cont?"on":""}" data-cont="${k}">${g.name}</button>`).join("");
+ $("contChipsHome").querySelectorAll(".chip").forEach(c=>c.onclick=()=>{S.settings.cont=c.dataset.cont;saveSettings();renderHome();sfx.tap()});
+ $("swHist").classList.toggle("on",S.settings.hist);
+ $("swSound").classList.toggle("on",S.settings.sound);$("swSpeak").classList.toggle("on",S.settings.speak);
+ $("creditsList").innerHTML=AVATARS.map(a=>`<li>${a.name}: ${CREDITS[a.id]||""}</li>`).join("")+`<li>Historical and US state flags: Wikimedia Commons renderings, public domain.</li>`;
+}
+const saveSettings=()=>store.set("settings",S.settings);
+const savePlayers=()=>store.set("players",S.players.map(p=>({name:p.name,avatar:p.avatar})));
+document.querySelectorAll("#modes .mode").forEach(m=>m.onclick=()=>{S.mode=m.dataset.mode;store.set("mode",S.mode);renderHome();sfx.tap()});
+$("timeRange").oninput=e=>{S.settings.minutes=+e.target.value;$("timeVal").textContent=fmt(S.settings.minutes*60);saveSettings()};
+document.querySelectorAll("#bonusChips .chip").forEach(c=>c.onclick=()=>{S.settings.bonus=c.dataset.bonus;saveSettings();renderHome();sfx.tap()});
+document.querySelectorAll("#styleChips .chip").forEach(c=>c.onclick=()=>{S.settings.style=c.dataset.style;saveSettings();renderHome();sfx.tap()});
+document.querySelectorAll("#blitzChips .chip").forEach(c=>c.onclick=()=>{S.settings.blitzCount=+c.dataset.n;saveSettings();renderHome();sfx.tap()});
+$("swSound").onclick=()=>{S.settings.sound=!S.settings.sound;saveSettings();renderHome();sfx.tap()};
+$("swSpeak").onclick=()=>{S.settings.speak=!S.settings.speak;saveSettings();renderHome();if(S.settings.speak)speak("I will read the choices out loud.",true)};
+$("swPracticeTimed").onclick=()=>{S.settings.practiceTimed=!S.settings.practiceTimed;saveSettings();renderHome();sfx.tap()};
+$("swPracticeAuto").onclick=()=>{S.settings.practiceAuto=!S.settings.practiceAuto;saveSettings();renderHome();sfx.tap()};
+$("swHist").onclick=()=>{S.settings.hist=!S.settings.hist;saveSettings();renderHome();sfx.tap();if(S.settings.hist)flash("🏛️ 31 historical flags added to the mix")};
+$("btnSaveSettings").onclick=()=>{saveSettings();savePlayers();[0,1].forEach(i=>saveProfile(i,false));store.set("profiles",S.profiles);const t=new Date();$("saveStatus").textContent=`Saved ✓ ${t.toLocaleTimeString([],{hour:"numeric",minute:"2-digit"})}`;flash("Settings and players saved ✓");sfx.correct();renderPlayers()};
+$("btnResetSettings").onclick=()=>askConfirm("Reset settings?","Round time, difficulty, challenges and sound go back to the defaults. Players and scores are kept.","Reset","Cancel",()=>{S.settings={...DEFAULT_SETTINGS};saveSettings();renderHome();flash("Settings reset")});
+$("btnHof").onclick=()=>{renderHof();showScreen("s-hof")};
+$("btnHof2").onclick=()=>{renderHof();showScreen("s-hof")};
+$("btnHofBack").onclick=()=>showScreen("s-home");
+$("btnBook").onclick=()=>{renderBook();showScreen("s-book")};
+$("btnBookBack").onclick=()=>{labStop();showScreen("s-home")};
+
+/* ---------- LEGEND PICKER ---------- */
+let picking=0;
+function openAvatar(i){picking=i;renderAvGrid();$("avTitle").textContent=S.mode==="two"?`Player ${i+1}, pick your Legend`:"Pick your Legend";$("avModal").classList.add("on")}
+function renderAvGrid(){
+ const cur=S.players[picking].avatar;
+ $("avHint").textContent=`${S.unlocked} of ${AVATARS.length} World Legends unlocked. Finish a game to unlock the next one! Or upload your own photo.`;
+ let h=AVATARS.map((a,i)=>{const locked=i>=S.unlocked;return `<button class="avopt ${cur.type==="hist"&&cur.id===a.id?"on":""}" data-id="${a.id}" ${locked?'data-locked="1"':""}>${avatarHTML({type:"hist",id:a.id},locked?"locked":"")}${locked?'<span class="lock">🔒</span>':""}<span>${locked?"???":a.name}</span></button>`}).join("");
+ h+=S.custom.map((d,i)=>`<button class="avopt ${cur.type==="custom"&&cur.data===d?"on":""}" data-custom="${i}">${avatarHTML({type:"custom",data:d})}<span>My photo</span></button>`).join("");
+ h+=`<button class="avopt upload" id="avUpload"><span style="font-size:1.8rem">📷</span><span>Upload my photo</span></button>`;
+ $("avgrid").innerHTML=h;
+ $("avgrid").querySelectorAll("[data-id]").forEach(b=>b.onclick=()=>{
+  if(b.dataset.locked){const a=AVATARS.find(x=>x.id===b.dataset.id);$("avBio").innerHTML=`${avatarHTML({type:"hist",id:a.id},"sm locked")}<div><b>Locked Legend</b><p>Finish a Solo or Two Player game to unlock the next Legend.</p></div>`;sfx.pass();return}
+  S.players[picking].avatar={type:"hist",id:b.dataset.id};savePlayers();renderAvGrid();sfx.tap()});
+ $("avgrid").querySelectorAll("[data-custom]").forEach(b=>b.onclick=()=>{S.players[picking].avatar={type:"custom",data:S.custom[+b.dataset.custom]};savePlayers();renderAvGrid();sfx.tap()});
+ $("avUpload").onclick=()=>$("avFile").click();
+ const a=cur.type==="hist"?legend(cur):null;
+ $("avBio").innerHTML=a?`${avatarHTML(cur,"sm")}<div><b>${a.name}</b> · from ${a.from}<p>${a.bio}</p></div>`:`${avatarHTML(cur,"sm")}<div><b>Your own photo</b><p>Looking good! Tap Done to play as yourself.</p></div>`;
+}
+$("avFile").onchange=e=>{
+ const f=e.target.files[0];if(!f)return;
+ const img=new Image();const url=URL.createObjectURL(f);
+ img.onload=()=>{const c=document.createElement("canvas");const s=160;c.width=c.height=s;const x=c.getContext("2d");
+  const m=Math.min(img.width,img.height);x.drawImage(img,(img.width-m)/2,(img.height-m)/2,m,m,0,0,s,s);
+  const data=c.toDataURL("image/jpeg",.82);URL.revokeObjectURL(url);
+  S.custom.push(data);if(S.custom.length>6)S.custom.shift();store.set("custom",S.custom);
+  S.players[picking].avatar={type:"custom",data};savePlayers();renderAvGrid();sfx.correct()};
+ img.src=url;e.target.value="";
+};
+$("avDone").onclick=()=>{$("avModal").classList.remove("on");renderHome()};
+$("avModal").onclick=e=>{if(e.target===$("avModal"))$("avDone").click()};
+
+/* ---------- GAME FLOW ---------- */
+$("btnStart").onclick=()=>{
+ if(S.mode==="online"){flash("Create or join a room above");return}
+ S.order=S.mode==="two"?[0,1]:[0];S.cur=0;S.results=[];
+ document.querySelectorAll("#players input").forEach((inp,i)=>S.players[i].name=inp.value);
+ S.order.forEach(i=>saveProfile(i,false));savePlayers();
+ sfx.tap();goReady();
+};
+function goReady(){
+ const i=S.order[S.cur];const L=LEVELS[S.settings.level];
+ $("readyAvatar").innerHTML=avatarHTML(S.players[i].avatar,"xl pop");
+ const titles={practice:`${playerName(i)}, let's practice!`,blitz:`${playerName(i)}, ready for the Blitz?`};
+ $("readyTitle").textContent=titles[S.mode]||`${playerName(i)}, get ready!`;
+ const extras=[S.mode!=="blitz"&&S.settings.style!=="classic"?STYLES[S.settings.style].name:null,S.settings.cont!=="ALL"?CONT_GROUPS[S.settings.cont].name+" only":null,S.settings.hist?"historical flags on":null].filter(Boolean).join(" · ");
+ if(S.mode==="blitz")$("readyRules").textContent=`${S.settings.blitzCount} flags, shown in full. Tap the right country as fast as you can. ✓ for right, ✗ for wrong, no points lost. The clock counts up until you finish. Level: ${L.emoji} ${L.name}.`+(extras?` Challenge: ${extras}.`:"");
+ else{const timed=S.mode!=="practice"||S.settings.practiceTimed;
+  $("readyRules").textContent=(timed?`You have ${fmt(S.settings.minutes*60)}. `:"No timer. ")+`The flag is revealed in 5 stages: guess at stage 1 for 5 points, stage 2 for 4… fully revealed is 1 point. `+(S.mode==="practice"?"Wrong answers cost nothing here. ":"Wrong answers cost 1 point. Passing is free. ")+`3 in a row = 🔥 double points! Level: ${L.emoji} ${L.name}.`+(extras?` Challenge: ${extras}.`:"")}
+ showScreen("s-ready");
+}
+$("btnGo").onclick=()=>{sfx.tap();startRound()};
+function runCountdown(cb){
+ const ov=$("cdOverlay"),n=$("cdNum");ov.classList.add("on");const seq=["3","2","1","GO!"];let i=0;
+ const show=()=>{n.textContent=seq[i];n.classList.toggle("go",seq[i]==="GO!");$("cdSub").textContent=seq[i]==="GO!"?"Spot that flag!":"Get ready…";
+  n.classList.remove("pop");void n.offsetWidth;n.classList.add("pop");
+  if(seq[i]==="GO!")tone(900,.35,"square",.16);else tone(600,.15,"square",.12);
+  i++;if(i<seq.length)setTimeout(show,850);else setTimeout(()=>{ov.classList.remove("on");cb()},650)};
+ show();
+}
+function activeFlags(){return S.settings.hist?FLAGS.concat(HFLAGS):FLAGS}
+function buildPool(L,rnd){
+ const conts=CONT_GROUPS[S.settings.cont].conts;
+ const inCont=f=>!conts||conts.includes(f.cont);
+ let pool=FLAGS.filter(f=>inCont(f)&&L.tiers.includes(f.tier));
+ if(pool.length<8)pool=FLAGS.filter(inCont);
+ if(S.settings.hist)pool=pool.concat(HFLAGS.filter(inCont));
+ return shuffle(pool,rnd);
+}
+function startRound(){
+ const i=S.order[S.cur];const L=LEVELS[S.settings.level];const blitz=S.mode==="blitz";
+ const rng=(NET&&NET.started&&NET.seed!=null)?mulberry32(NET.seed):Math.random;
+ R={player:i,L,rng,pool:buildPool(L,rng),qi:0,score:0,correct:0,wrong:0,passed:0,streak:0,best:0,seen:[],learned:[],blitz,blitzN:S.settings.blitzCount,elapsed:0,
+    timed:!blitz&&(S.mode!=="practice"||S.settings.practiceTimed),timeLeft:S.settings.minutes*60,total:S.settings.minutes*60,
+    active:true,started:false,paused:false,userPaused:false,pendingNext:false,locked:false,lastTs:0,revealT:0,stage:0,lastTick:99,warned:false,target:null,choices:[],order:[],style:"classic"};
+ $("hudAvatar").innerHTML=avatarHTML(S.players[i].avatar,"sm");$("hudName").textContent=playerName(i);
+ $("hudScore").textContent="0";$("hudStreak").textContent="";$("hudScore").previousElementSibling.textContent=blitz?"Right":"Score";
+ $("fxwrap").className=L.fx;$("timer").classList.toggle("off",!R.timed);$("timer").classList.remove("low");$("s-play").classList.remove("hurry");
+ $("btnStop").textContent=(S.mode==="practice"||blitz)?"⏹ Finish":"⏹ Quit";$("btnPass").hidden=blitz;$("meter").hidden=blitz;
+ $("tiles").innerHTML=Array.from({length:TILE_N},(_,i)=>`<div class="tile" style="background-color:${TILE_COLORS[(i*5+Math.floor(i/6))%TILE_COLORS.length]}">?</div>`).join("");
+ showScreen("s-play");renderTimer();nextFlag(true);renderOppHud();
+ runCountdown(()=>{if(!R||!R.active)return;R.started=true;R.lastTs=0;speakChoices();requestAnimationFrame(loop)});
+}
+function speakChoices(force){speak("Which flag is this? "+R.choices.map((c,i)=>LETTERS[i]+". "+c.name).join(". "),force)}
+function nextFlag(silent){
+ if(R.blitz&&R.seen.length>=R.blitzN){endRound();return}
+ if(R.qi>=R.pool.length){R.pool=shuffle(R.pool,R.rng);R.qi=0}
+ const t=R.pool[R.qi++];R.target=t;R.seen.push(t.code);
+ R.style=R.blitz?"blitz":(S.settings.style==="mix"?MIX_STYLES[Math.floor(R.rng()*MIX_STYLES.length)]:S.settings.style);
+ const dmode=R.style==="lookalike"||R.style==="morph"?"lookalike":R.L.distract;
+ R.choices=shuffle([t,...distractors(t,R.L.choices-1,dmode)],R.rng);
+ R.order=shuffle(Array.from({length:TILE_N},(_,i)=>i));
+ R.revealT=0;R.stage=-1;R.locked=false;R.paused=false;
+ const fb=$("flagbox");fb.classList.remove("noimg");fb.classList.toggle("flip",R.style==="flip");fb.classList.toggle("contain",!!t.hist);fb.classList.toggle("morphing",R.style==="morph");
+ const img=$("flagimg");img.style.transition="none";img.style.transform="";img.style.transformOrigin=`${20+Math.random()*60}% ${20+Math.random()*60}%`;
+ img.src=flagSrc(t.code);img.dataset.flag=t.code;$("flagEmoji").textContent=flagEmoji(t.code);img.onerror=()=>{if(!img.src.startsWith("blob:")&&!flagSrc(t.code))return;fb.classList.add("noimg")};
+ if(R.style==="morph"){const decoy=R.choices.find(c=>c.code!==t.code);R.decoy=decoy;const m=$("morphimg");m.src=flagSrc(decoy.code);m.dataset.flag=decoy.code;m.style.opacity=STAGE_MORPH[0]}
+ $("tiles").classList.toggle("hide",R.style!=="classic"&&R.style!=="flip"&&R.style!=="lookalike");
+ $("tiles").querySelectorAll(".tile").forEach(x=>{x.style.transitionDelay="0ms";x.classList.remove("gone")});
+ $("spot").classList.toggle("on",R.style==="spotlight");
+ if(R.style==="spotlight"){R.spots=[0,1,2].map(()=>[60+Math.random()*280,50+Math.random()*200]);R.spots.forEach((p,k)=>{const c=$("sc"+k);c.setAttribute("cx",p[0]);c.setAttribute("cy",p[1]);c.style.r="0px";c.setAttribute("r","0")})}
+ const pill=$("stylePill");pill.hidden=R.style==="classic";
+ pill.textContent=R.blitz?`⚡ Flag Blitz · ${R.seen.length}/${R.blitzN}`:({spotlight:"🔦 Spotlight",zoom:"🕵️ Mystery Zoom",flip:"🔄 Upside-Down",lookalike:"👀 Look-alikes",morph:"🧬 Morph"}[R.style]||"");
+ $("toast").classList.remove("on");$("bmark").className="bmark";
+ $("choices").innerHTML=R.choices.map((c,i)=>`<button class="choice" data-c="${c.code}"><span class="k">${LETTERS[i]}</span><span>${c.name}</span></button>`).join("");
+ $("choices").querySelectorAll(".choice").forEach(b=>b.onclick=()=>answer(b.dataset.c));
+ if(R.blitz){$("tiles").querySelectorAll(".tile").forEach(x=>x.classList.add("gone"));img.style.filter="none"}else updateReveal(true);
+ requestAnimationFrame(()=>{img.style.transition=""});
+ const nx=R.pool[R.qi];if(nx&&!nx.hist){const im=new Image();im.src=flagSrc(nx.code)}
+ if(!silent)speakChoices();
+}
+function distractors(t,n,mode){
+ const maxT=Math.min(4,Math.max(...R.L.tiers)+1);
+ const conts=CONT_GROUPS[S.settings.cont].conts;
+ const all=activeFlags();
+ let cands=all.filter(f=>f.code!==t.code&&f.tier<=maxT&&(!conts||conts.includes(f.cont)));
+ if(cands.length<n)cands=all.filter(f=>f.code!==t.code&&(!conts||conts.includes(f.cont)));
+ if(cands.length<n)cands=all.filter(f=>f.code!==t.code);
+ const rnd=R.rng;
+ if(mode==="random")return shuffle(cands,rnd).slice(0,n);
+ if(mode==="continent"){const same=shuffle(cands.filter(f=>f.cont===t.cont),rnd);const rest=shuffle(cands.filter(f=>f.cont!==t.cont),rnd);return same.concat(rest).slice(0,n)}
+ const sim=f=>{let inter=0;for(const c of t.colors)if(f.colors.includes(c))inter++;const uni=new Set(t.colors+f.colors).size;return inter/uni+(f.cont===t.cont?.2:0)+(f.hist===t.hist?.15:0)+rnd()*.25};
+ return cands.map(f=>[sim(f),f]).sort((a,b)=>b[0]-a[0]).slice(0,n).map(x=>x[1]);
+}
+function updateReveal(first){
+ const per=R.L.reveal/5;const st=Math.min(4,Math.floor(R.revealT/per));
+ if(st===R.stage&&!first)return;
+ if(!first&&st>0)sfx.stage();
+ R.stage=st;
+ const shown=STAGE_TILES[st];let k=0;
+ $("tiles").querySelectorAll(".tile").forEach((x,i)=>{const show=R.order[i]<shown;if(show&&!x.classList.contains("gone")){x.style.transitionDelay=(k++*70)+"ms";x.classList.add("gone")}});
+ if(R.style==="spotlight")STAGE_SPOT[st].forEach((r,j)=>{const c=$("sc"+j);c.style.r=r+"px";c.setAttribute("r",r)});
+ const img=$("flagimg");const f=st/4;
+ if(R.style==="zoom"){img.style.transform=`scale(${STAGE_ZOOM[st]})`;img.style.filter=R.L.gray?`grayscale(${(1-f).toFixed(2)})`:"none"}
+ else if(R.style==="morph"){const m=$("morphimg");m.style.opacity=STAGE_MORPH[st];m.style.filter=`blur(${(st===4?0:1+st).toFixed(0)}px)`;img.style.filter=`blur(${((1-f)*Math.min(R.L.blur,4)).toFixed(1)}px)`}
+ else{img.style.filter=`blur(${((1-f)*R.L.blur).toFixed(1)}px) grayscale(${R.L.gray?(1-f).toFixed(2):0})`}
+ const pts=STAGE_PTS[st];const mult=R.streak>=3?2:1;
+ $("meter").innerHTML=[1,2,3,4,5].map(i=>`<span class="star ${i<=pts?"":"off"}">⭐</span>`).join("")+`<span class="pts">${st<4?"Stage "+(st+1):"Fully revealed"} · ${pts*mult} point${pts*mult>1?"s":""}${mult>1?" 🔥":""}</span>`;
+}
+function loop(ts){
+ if(!R||!R.active)return;
+ const dt=R.lastTs?Math.min(.1,(ts-R.lastTs)/1000):0;R.lastTs=ts;
+ if(!R.paused&&!R.userPaused){
+  if(R.blitz){R.elapsed+=dt}
+  else if(R.timed){R.timeLeft-=dt;const s=Math.ceil(R.timeLeft);
+   if(s===10&&!R.warned){R.warned=true;sfx.warn();$("s-play").classList.add("hurry");speak("Ten seconds left!")}
+   if(s<=10&&s!==R.lastTick&&s>0){if(s!==10)sfx.tick();R.lastTick=s}
+   if(R.timeLeft<=0){R.timeLeft=0;renderTimer();endRound();return}}
+  if(!R.locked&&!R.blitz){R.revealT+=dt;updateReveal()}
+  renderTimer();
+ }
+ requestAnimationFrame(loop);
+}
+function renderTimer(){
+ if(R.blitz){$("timerFill").style.transform=`scaleX(${Math.min(1,R.seen.length/R.blitzN)})`;$("timerTxt").textContent=`⏱ ${R.elapsed.toFixed(1)} s · flag ${Math.min(R.seen.length,R.blitzN)} of ${R.blitzN}`;return}
+ if(!R.timed){$("timerFill").style.transform="scaleX(1)";$("timerTxt").textContent="Practice · no timer";return}
+ $("timerFill").style.transform=`scaleX(${R.timeLeft/R.total})`;$("timerTxt").textContent=fmt(R.timeLeft);
+ $("timer").classList.toggle("low",R.timeLeft<=10);
+}
+function answer(code){
+ if(!R.started||R.locked||R.userPaused)return;R.locked=true;R.paused=true;
+ const t=R.target;const ok=code===t.code;
+ $("choices").querySelectorAll(".choice").forEach(b=>{b.disabled=true;if(b.dataset.c===t.code)b.classList.add("correct");else if(b.dataset.c===code)b.classList.add("wrong");else b.classList.add("dim")});
+ if(R.blitz){
+  if(ok){R.correct++;R.streak++;R.best=Math.max(R.best,R.streak);sfx.correct();if(!R.learned.includes(t.code))R.learned.push(t.code);if(!collection.has(t.code)){collection.add(t.code);store.set("collection",[...collection])}}
+  else{R.wrong++;R.streak=0;sfx.wrong()}
+  $("hudScore").textContent=R.correct;$("hudStreak").textContent=R.streak>=3?`🔥 ${R.streak} in a row!`:"";
+  const bm=$("bmark");bm.textContent=ok?"✓":"✗";bm.className="bmark on "+(ok?"ok":"no");
+  R.toastTimer=setTimeout(()=>{if(!R||!R.active)return;if(R.userPaused){R.pendingNext=true;return}R.paused=false;nextFlag(true)},ok?450:900);
+  return;
+ }
+ const base=STAGE_PTS[R.stage];const mult=R.streak>=3?2:1;
+ revealAll();
+ let delta=0,extra="";
+ if(ok){R.correct++;R.streak++;R.best=Math.max(R.best,R.streak);delta=base*mult;
+  if(R.streak===3){extra="🔥 Streak! Double points!";sfx.streak()}else if(mult>1){extra="🔥 ×2";sfx.correct()}else sfx.correct();
+  if(!R.learned.includes(t.code))R.learned.push(t.code);
+  if(!collection.has(t.code)){collection.add(t.code);store.set("collection",[...collection]);extra+=(extra?" · ":"")+"🌟 New flag collected!"}
+  $("hudScore").classList.add("pop");
+ }else{R.wrong++;R.streak=0;delta=S.mode==="practice"?0:-1;sfx.wrong();$("stage").classList.add("shake");setTimeout(()=>$("stage").classList.remove("shake"),450)}
+ R.score=Math.max(0,R.score+delta);$("hudScore").textContent=R.score;setTimeout(()=>$("hudScore").classList.remove("pop"),500);
+ renderStreak();netSync();
+ showToast(ok?"good":"bad",ok?`${flagEmoji(t.code)} ${t.name.toUpperCase()} — Correct! +${delta}`:`${flagEmoji(t.code)} It was ${t.name.toUpperCase()}${S.mode==="practice"?"":" · −1"}`,t,extra);
+ speak(ok?`Correct! ${t.name}. Capital ${t.capital}.`:`Oops. It was ${t.name}. Capital ${t.capital}.`);
+}
+function renderStreak(){
+ $("hudStreak").innerHTML=R.streak>=3?`<span class="mult">🔥 ×2 streak (${R.streak})</span>`:R.streak===2?"🔥 2 in a row, one more for ×2!":"";
+}
+function pass(){
+ if(!R||!R.started||R.locked||R.userPaused||R.blitz)return;R.locked=true;R.paused=true;R.passed++;
+ const t=R.target;$("choices").querySelectorAll(".choice").forEach(b=>{b.disabled=true;if(b.dataset.c===t.code)b.classList.add("correct");else b.classList.add("dim")});
+ revealAll();sfx.pass();netSync();showToast("pass",`${flagEmoji(t.code)} ${t.name.toUpperCase()} · passed`,t,"");speak(`It was ${t.name}.`);
+}
+function revealAll(){$("tiles").querySelectorAll(".tile").forEach((x,i)=>{x.style.transitionDelay=(i%6*40)+"ms";x.classList.add("gone")});[0,1,2].forEach(j=>{$("sc"+j).style.r="700px";$("sc"+j).setAttribute("r","700")});const img=$("flagimg");img.style.filter="none";img.style.transform="scale(1)";$("morphimg").style.opacity=0;$("flagbox").classList.remove("flip")}
+function showToast(kind,big,t,extra){
+ $("toastBig").className="big "+kind;$("toastBig").textContent=big;
+ $("toastWho").textContent=`Capital: ${t.capital} • ${whereTxt(t)}`+(extra?`  ${extra}`:"");
+ const xy=MAPXY[t.map||t.code];$("toastMap").hidden=!xy;if(xy){$("toastPin").style.left=(xy[0]/8)+"%";$("toastPin").style.top=(xy[1]/4)+"%"}
+ const practice=S.mode==="practice";$("toastFact").hidden=!practice;$("toastFact").textContent=t.fact;$("toastNext").hidden=!practice;
+ $("toast").classList.add("on");
+ const auto=!practice||S.settings.practiceAuto;
+ if(auto)R.toastTimer=setTimeout(()=>{if(!R||!R.active)return;if(R.userPaused){R.pendingNext=true;return}R.paused=false;nextFlag()},practice?3200:(kind==="good"?2000:2400));
+}
+$("toastNext").onclick=()=>{if(R&&R.active&&!R.userPaused){clearTimeout(R.toastTimer);R.paused=false;nextFlag()}};
+$("btnPass").onclick=pass;
+$("btnSpeak").onclick=()=>{if(R&&R.choices.length)speakChoices(true)};
+/* pause / resume / quit */
+function pauseGame(){
+ if(R&&R.active&&R.started&&!R.userPaused){R.userPaused=true}
+ else if(B&&B.active&&!B.userPaused){B.userPaused=true}
+ else return;
+ try{speechSynthesis.cancel()}catch(e){}
+ $("pauseOv").classList.add("on");sfx.pass();
+}
+function resumeGame(){
+ $("pauseOv").classList.remove("on");
+ if(R&&R.active&&R.userPaused){R.userPaused=false;R.lastTs=0;if(R.pendingNext){R.pendingNext=false;R.paused=false;nextFlag(R.blitz)}}
+ if(B&&B.active&&B.userPaused){B.userPaused=false;B.lastTs=0;if(B.pendingNext){B.pendingNext=false;bonusNext()}}
+ sfx.tap();
+}
+function quitGame(){
+ if(R){R.active=false;clearTimeout(R.toastTimer)}if(B){B.active=false}
+ try{speechSynthesis.cancel()}catch(e){}
+ $("pauseOv").classList.remove("on");$("cdOverlay").classList.remove("on");$("s-play").classList.remove("hurry");
+ R=null;B=null;S.results=[];netLeave(true);renderHome();showScreen("s-home");flash("Game ended. No score saved.");
+}
+$("btnPause").onclick=pauseGame;$("btnBonusPause").onclick=pauseGame;$("btnResume").onclick=resumeGame;
+$("btnStop").onclick=()=>{if(!R||!R.active)return;if(S.mode==="practice"||R.blitz){endRound();return}pauseGame();askConfirm("Quit this game?","The round ends now and nothing is saved to the leaderboard.","Quit game","Keep playing",quitGame,resumeGame)};
+$("btnBonusQuit").onclick=()=>{if(!B||!B.active)return;pauseGame();askConfirm("Quit this game?","The bonus round and this game's scores are thrown away.","Quit game","Keep playing",quitGame,resumeGame)};
+function endRound(){
+ if(!R||!R.active)return;R.active=false;clearTimeout(R.toastTimer);sfx.timeup();try{speechSynthesis.cancel()}catch(e){}
+ $("s-play").classList.remove("hurry");$("pauseOv").classList.remove("on");$("bmark").className="bmark";
+ const res={player:R.player,score:R.score,correct:R.correct,wrong:R.wrong,passed:R.passed,best:R.best,learned:R.learned.slice(),seen:R.seen.slice(),bonus:0};
+ S.results.push(res);
+ $("sumAvatar").innerHTML=avatarHTML(S.players[R.player].avatar,"xl pop");
+ const dyk=shuffle([...new Set(res.learned.length?res.learned:res.seen)]).slice(0,3);
+ $("sumDyk").innerHTML=dyk.map(c=>`<div class="c"><img ${flagAttr(c)} alt=""><div><b>${BY[c].name}</b><p>${BY[c].fact}</p></div></div>`).join("")||`<div class="muted" style="font-weight:800">Play a little longer to collect facts!</div>`;
+ $("sumLearned").innerHTML=res.learned.length?res.learned.map(c=>`<span class="mini"><img ${flagAttr(c)} alt="">${BY[c].name}</span>`).join(""):`<span class="muted" style="font-weight:800">No flags yet. Next time!</span>`;
+ if(R.blitz){
+  const answered=R.correct+R.wrong;const secs=R.elapsed;const per=answered?secs/answered:0;
+  const best=store.get("blitz",null);const better=!best||R.correct>best.right||(R.correct===best.right&&secs<best.secs);
+  const rec={right:R.correct,total:R.blitzN,secs:+secs.toFixed(1),level:S.settings.level,d:new Date().toISOString().slice(0,10)};
+  if(better&&answered>=R.blitzN)store.set("blitz",rec);
+  $("sumTitle").textContent=answered>=R.blitzN?(better?"⚡ New Blitz record!":"⚡ Blitz complete!"):"⚡ Blitz stopped";
+  $("sumScore").textContent=`${R.correct}/${answered}`;
+  $("sumSub").textContent=`${playerName(R.player)} · ${secs.toFixed(1)} seconds · ${per.toFixed(1)} s per flag · ${answered?Math.round(R.correct/answered*100):0}% accuracy`+(best&&!better?` · Best: ${best.right}/${best.total} in ${best.secs}s`:"");
+  $("sumRight").textContent=R.correct;$("sumWrong").textContent=R.wrong;$("sumPass").textContent=secs.toFixed(0);$("sumPass").nextElementSibling.textContent="Seconds";
+  $("btnSumNext").textContent="Done ➜";
+ }else{
+  $("sumPass").nextElementSibling.textContent="Passed";
+  $("sumTitle").textContent=R.timed&&R.timeLeft<=0?"Time's up!":"Round over!";
+  $("sumScore").textContent=res.score;$("sumSub").textContent=`${playerName(R.player)} · best streak ${res.best}`;
+  $("sumRight").textContent=res.correct;$("sumWrong").textContent=res.wrong;$("sumPass").textContent=res.passed;
+  const hasBonus=S.mode!=="practice"&&S.mode!=="online"&&S.settings.bonus!=="off";
+  $("btnSumNext").textContent=hasBonus?"🎁 Bonus round ➜":(S.mode==="two"&&S.cur<1?"Next player ➜":(S.mode==="practice"?"Done ➜":"See results ➜"));
+ }
+ $("btnSumNext").disabled=false;
+ if(S.mode==="online"&&NET){NET.done=true;netTrack();netCheckResults()}
+ showScreen("s-summary");
+}
+$("btnSumNext").onclick=()=>{sfx.tap();if(S.mode!=="practice"&&S.mode!=="blitz"&&S.mode!=="online"&&S.settings.bonus!=="off")startBonus();else afterPlayer()};
+function afterPlayer(){
+ if(S.mode==="online"){showResultsOnline();return}
+ if(S.mode==="practice"||S.mode==="blitz"){renderHome();showScreen("s-home");return}
+ S.cur++;if(S.cur<S.order.length)goReady();else showResults();
+}
+
+/* ---------- BONUS ---------- */
+function startBonus(){
+ const res=S.results[S.results.length-1];const i=res.player;const type=S.settings.bonus;
+ $("bonusAvatar").innerHTML=avatarHTML(S.players[i].avatar,"sm");$("bonusName").textContent=playerName(i);
+ $("bonusPill").textContent=BONUS[type].name;$("bonusScore").textContent="0";
+ B={type,res,score:0,q:0,active:true,locked:false,userPaused:false,pendingNext:false};
+ if(type==="capital"){
+  const seen=shuffle([...new Set(res.seen)]).map(c=>BY[c]);const fill=shuffle(FLAGS.filter(f=>f.tier<=2&&!res.seen.includes(f.code)));
+  B.qs=seen.concat(fill).slice(0,3);B.per=12;
+ }else if(type==="states"){B.qs=shuffle(STATES).slice(0,5);B.per=10}
+ else{B.total=20;B.timeLeft=20;B.pool=shuffle(FLAGS.filter(f=>f.tier<=Math.max(...LEVELS[S.settings.level].tiers)))}
+ $("btnBonusPass").hidden=false;showScreen("s-bonus");bonusNext();B.lastTs=0;requestAnimationFrame(bonusLoop);
+}
+function bonusNext(){
+ B.locked=false;$("bonusToast").classList.remove("on");
+ let opts,t;
+ if(B.type==="capital"||B.type==="states"){
+  if(B.q>=B.qs.length){endBonus();return}
+  t=B.qs[B.q];B.qTime=B.per;
+  if(B.type==="capital"){
+   const caps=shuffle(FLAGS.filter(f=>f.code!==t.code&&f.capital!==t.capital&&f.cont===t.cont)).slice(0,3);opts=shuffle([t,...caps]);
+   $("bonusQ").textContent=`What is the capital of ${t.name}?`;
+   $("bonusChoices").innerHTML=opts.map((c,i)=>`<button class="choice" data-c="${c.code}"><span class="k">${LETTERS[i]}</span><span>${c.capital}</span></button>`).join("");
+   speak(`What is the capital of ${t.name}? `+opts.map((c,i)=>LETTERS[i]+". "+c.capital).join(". "));
+  }else{
+   opts=shuffle([t,...shuffle(STATES.filter(s=>s.code!==t.code)).slice(0,3)]);
+   $("bonusQ").textContent="🇺🇸 Which state's flag is this?";
+   $("bonusChoices").innerHTML=opts.map((c,i)=>`<button class="choice" data-c="${c.code}"><span class="k">${LETTERS[i]}</span><span>${c.name}</span></button>`).join("");
+   speak("Which state is this? "+opts.map((c,i)=>LETTERS[i]+". "+c.name).join(". "));
+  }
+ }else{
+  if(B.q>=B.pool.length)B.pool=shuffle(B.pool);
+  t=B.pool[B.q%B.pool.length];
+  opts=shuffle([t,...shuffle(FLAGS.filter(f=>f.code!==t.code&&f.tier<=2)).slice(0,3)]);
+  $("bonusQ").textContent="Quick! Which flag is this?";
+  $("bonusChoices").innerHTML=opts.map((c,i)=>`<button class="choice" data-c="${c.code}"><span class="k">${LETTERS[i]}</span><span>${c.name}</span></button>`).join("");
+ }
+ B.target=t;const bi=$("bonusImg");bi.src=flagSrc(t.code);bi.dataset.flag=t.code;bi.style.objectFit=t.code.startsWith("s_")?"contain":"cover";bi.style.background=t.code.startsWith("s_")?"#1E3350":"";
+ $("bonusChoices").querySelectorAll(".choice").forEach(b=>b.onclick=()=>bonusAnswer(b.dataset.c));
+}
+function bonusLoop(ts){
+ if(!B||!B.active)return;const dt=B.lastTs?Math.min(.1,(ts-B.lastTs)/1000):0;B.lastTs=ts;
+ if(!B.locked&&!B.userPaused){
+  if(B.type==="capital"||B.type==="states"){B.qTime-=dt;$("bonusFill").style.transform=`scaleX(${Math.max(0,B.qTime/B.per)})`;$("bonusTxt").textContent=`Question ${B.q+1} of ${B.qs.length} · ${Math.ceil(Math.max(0,B.qTime))}s`;if(B.qTime<=0)bonusAnswer(null)}
+  else{B.timeLeft-=dt;$("bonusFill").style.transform=`scaleX(${Math.max(0,B.timeLeft/B.total)})`;$("bonusTxt").textContent=fmt(B.timeLeft);if(B.timeLeft<=0){endBonus();return}}
+ }
+ requestAnimationFrame(bonusLoop);
+}
+function bonusAnswer(code){
+ if(B.locked||B.userPaused)return;B.locked=true;const t=B.target;const ok=code===t.code;
+ $("bonusChoices").querySelectorAll(".choice").forEach(b=>{b.disabled=true;if(b.dataset.c===t.code)b.classList.add("correct");else if(b.dataset.c===code)b.classList.add("wrong");else b.classList.add("dim")});
+ const gain=ok?(B.type==="capital"?3:B.type==="states"?2:1):0;B.score+=gain;$("bonusScore").textContent=B.score;
+ if(ok){sfx.correct();if(!collection.has(t.code)){collection.add(t.code);store.set("collection",[...collection])}}else if(code===null)sfx.pass();else sfx.wrong();
+ $("bonusToastBig").className="big "+(ok?"good":code===null?"pass":"bad");$("bonusToastBig").textContent=ok?`+${gain}!`:(code===null?"Skipped":"Not this time");
+ if(B.type==="capital"){$("bonusToastWho").textContent=`${t.capital} is the capital of ${t.name}`;$("bonusToastFact").textContent=CONT[t.cont]}
+ else if(B.type==="states"){$("bonusToastWho").textContent=`${t.name} · Capital: ${t.capital}`;$("bonusToastFact").textContent=t.fact}
+ else{$("bonusToastWho").textContent=t.name;$("bonusToastFact").textContent=`Capital: ${t.capital}`}
+ $("bonusToast").classList.add("on");B.q++;
+ setTimeout(()=>{if(!B||!B.active)return;if(B.userPaused){B.pendingNext=true;return}bonusNext()},B.type==="lightning"?600:(B.type==="states"?1900:1500));
+}
+$("btnBonusPass").onclick=()=>{if(B&&!B.locked)bonusAnswer(null)};
+function endBonus(){
+ if(!B||!B.active)return;B.active=false;B.res.bonus=B.score;B.res.score+=B.score;
+ $("bonusToastBig").className="big good";$("bonusToastBig").textContent=`Bonus: +${B.score}`;$("bonusToastWho").textContent="Nice work!";$("bonusToastFact").textContent="";
+ $("bonusToast").classList.add("on");$("btnBonusPass").hidden=true;sfx.fanfare();
+ setTimeout(afterPlayer,1500);
+}
+
+/* ---------- RESULTS ---------- */
+function showResults(){
+ const L=LEVELS[S.settings.level];const hof=store.get("hof",[]);const today=new Date().toISOString().slice(0,10);
+ S.results.forEach(r=>hof.push({n:playerName(r.player),a:S.players[r.player].avatar,s:r.score,l:S.settings.level,m:S.settings.minutes,d:today,mode:S.mode}));
+ hof.sort((a,b)=>b.s-a.s);store.set("hof",hof.slice(0,30));
+ const rank=r=>hof.findIndex(h=>h.n===playerName(r.player)&&h.s===r.score)+1;
+ if(S.mode==="two"){
+  const [a,b]=S.results;const tie=a.score===b.score;const w=a.score>=b.score?a:b;
+  if(!tie){const wins=store.get("wins",{});const nm=playerName(w.player);wins[nm]=(wins[nm]||0)+1;store.set("wins",wins)}
+  $("resTitle").textContent=tie?"🤝 It's a tie!":`🏆 ${playerName(w.player)} wins!`;
+  $("resBody").innerHTML=`<div class="versus">${[a,b].map(r=>`<div class="pl ${!tie&&r===w?"win":""}"><span class="crown">👑</span>${avatarHTML(S.players[r.player].avatar,"xl")}<div class="nm">${playerName(r.player)}</div><div class="sc">${r.score}</div><div class="muted" style="font-weight:800;font-size:.85rem">${r.correct} right${r.bonus?` · +${r.bonus} bonus`:""}</div></div>`).join('<div class="vs">VS</div>')}</div>`;
+  $("resRankLabel").textContent=`Leaderboard: ${playerName(a.player)} #${rank(a)} · ${playerName(b.player)} #${rank(b)} · ${L.emoji} ${L.name}`;
+ }else{
+  const r=S.results[0];const rk=rank(r);
+  $("resTitle").textContent=rk===1?"🥇 New high score!":"🎉 Great round!";
+  $("resBody").innerHTML=`<div class="pl win"><span class="crown">${rk===1?"👑":rk<=3?"🏅":"⭐"}</span>${avatarHTML(S.players[r.player].avatar,"xl")}<div class="nm">${playerName(r.player)}</div><div class="sc">${r.score}</div><div class="muted" style="font-weight:800">${r.correct} right · ${r.wrong} wrong · ${r.passed} passed${r.bonus?` · +${r.bonus} bonus`:""}</div></div>`;
+  $("resRankLabel").textContent=`Leaderboard rank #${rk} · ${L.emoji} ${L.name} · ${fmt(S.settings.minutes*60)}`;
+ }
+ let unlockHTML="";
+ if(S.unlocked<AVATARS.length){const a=AVATARS[S.unlocked];S.unlocked++;store.set("unlocked",S.unlocked);
+  unlockHTML=`<div class="unlock pop">${avatarHTML({type:"hist",id:a.id},"sm")}<div><b>🎉 New Legend unlocked: ${a.name}!</b><p>${a.bio}</p></div></div>`}
+ else unlockHTML=`<div class="unlock"><span style="font-size:2rem">🏅</span><div><b>All ${AVATARS.length} World Legends unlocked!</b><p>You've met every Legend. Legendary.</p></div></div>`;
+ $("resUnlock").innerHTML=unlockHTML;
+ showScreen("s-results");sfx.fanfare();confetti();
+}
+function confetti(){
+ if(matchMedia("(prefers-reduced-motion: reduce)").matches)return;
+ const box=$("confetti");box.innerHTML="";const cols=["#FF5E5B","#FFD23F","#2BB673","#2D7DD2","#7B5CFF","#FF8C42"];
+ for(let i=0;i<80;i++){const e=document.createElement("i");e.style.left=Math.random()*100+"%";e.style.background=cols[i%cols.length];e.style.animationDuration=(2+Math.random()*2)+"s";e.style.animationDelay=Math.random()*1.2+"s";e.style.transform=`rotate(${Math.random()*360}deg)`;box.appendChild(e)}
+ setTimeout(()=>box.innerHTML="",5000);
+}
+$("btnRematch").onclick=()=>{sfx.tap();if(S.mode==="online"){renderHome();showScreen("s-home");flash("Create or join a new room for a rematch");return}$("btnStart").click()};
+$("btnHome").onclick=()=>{renderHome();showScreen("s-home")};
+
+/* ---------- LEADERBOARD ---------- */
+function renderHof(){
+ const hof=store.get("hof",[]);const tb=$("hofTable").querySelector("tbody");
+ tb.innerHTML=hof.slice(0,10).map((h,i)=>`<tr><td class="rank">${i===0?"🥇":i===1?"🥈":i===2?"🥉":i+1}</td><td>${avatarHTML(h.a)}</td><td>${esc(h.n)}<div class="muted" style="font-size:.75rem">${h.d}${h.mode==="solo"?" · solo":""}</div></td><td class="rank">${h.s}</td><td>${LEVELS[h.l]?LEVELS[h.l].emoji+" "+LEVELS[h.l].name:""}</td><td>${fmt(h.m*60)}</td></tr>`).join("");
+ $("hofEmpty").hidden=hof.length>0;
+ const wins=store.get("wins",{});const ws=Object.entries(wins).sort((a,b)=>b[1]-a[1]);
+ const bz=store.get("blitz",null);
+ $("trophies").innerHTML=(ws.length?ws.map(([n,c])=>`<span class="trophy">🏆 ${esc(n)} · ${c} win${c>1?"s":""}</span>`).join(""):`<span class="muted" style="font-weight:800">No two-player wins yet.</span>`)+(bz?`<span class="trophy">⚡ Blitz record: ${bz.right}/${bz.total} in ${bz.secs}s (${LEVELS[bz.level]?LEVELS[bz.level].name:""})</span>`:"");
+}
+$("btnHofClear").onclick=()=>askConfirm("Clear the leaderboard?","All saved scores, the trophy case and the Blitz record will be erased.","Clear it","Keep them",()=>{store.set("hof",[]);store.set("wins",{});store.set("blitz",null);renderHof();flash("Leaderboard cleared")});
+
+/* ---------- COLLECTION + FLAG LAB ---------- */
+let bookCont="ALL";
+function renderBook(){
+ const conts=["ALL",...Object.keys(CONT),"HIST"];
+ $("contChips").innerHTML=conts.map(c=>`<button class="chip ${c===bookCont?"on":""}" data-c="${c}">${c==="ALL"?"🌍 All":c==="HIST"?"🏛️ Historical":CONT[c]}</button>`).join("");
+ $("contChips").querySelectorAll(".chip").forEach(b=>b.onclick=()=>{bookCont=b.dataset.c;renderBook()});
+ const list=(bookCont==="HIST"?HFLAGS:FLAGS.filter(f=>bookCont==="ALL"||f.cont===bookCont)).slice().sort((a,b)=>a.name.localeCompare(b.name));
+ const total=FLAGS.length+HFLAGS.length;const have=[...collection].filter(c=>BY[c]&&!c.startsWith("s_")).length;
+ $("passportTxt").textContent=`${have} of ${total} flags (${FLAGS.length} countries + ${HFLAGS.length} historical)`;$("passportBar").style.width=(have/total*100).toFixed(1)+"%";
+ $("bookgrid").innerHTML=list.map(f=>{const got=collection.has(f.code);return `<button class="bk ${got?"":"locked"}" data-c="${f.code}"><img ${flagAttr(f.code)} alt="Flag of ${f.name}" loading="lazy" ${f.hist?'style="object-fit:contain;background:#1E3350"':""}>${got?'<span class="ok">✓</span>':'<span class="lk">🔒</span>'}<div class="n">${f.name}</div><div class="c">${got?f.capital+" · ":""}${whereTxt(f)}</div><div class="f">${got?f.fact:"Guess this flag correctly in a game to unlock its facts."}</div></button>`}).join("");
+ $("bookgrid").querySelectorAll(".bk").forEach(b=>b.onclick=()=>{b.classList.toggle("open");const f=BY[b.dataset.c];if(b.classList.contains("open")&&collection.has(f.code))speak(`${f.name}. Capital: ${f.capital}. ${f.fact}`)});
+ renderLab();
+}
+let labT=null,labDir=1;
+function renderLab(){
+ const all=FLAGS.concat(HFLAGS).slice().sort((a,b)=>a.name.localeCompare(b.name));
+ const opts=all.map(f=>`<option value="${f.code}">${f.name}</option>`).join("");
+ const a=$("labA"),b=$("labB");if(!a.options.length){a.innerHTML=opts;b.innerHTML=opts;a.value="it";b.value="ie";
+  a.onchange=b.onchange=labUpdate;$("labRange").oninput=labUpdate;$("labPlay").onclick=()=>{if(labT)labStop();else labStart()}}
+ labUpdate();
+}
+function labUpdate(){
+ const a=BY[$("labA").value],b=BY[$("labB").value],p=+$("labRange").value/100;
+ const ia=$("labImgA"),ib=$("labImgB");ia.src=flagSrc(a.code);ia.dataset.flag=a.code;ib.src=flagSrc(b.code);ib.dataset.flag=b.code;
+ const melt=Math.sin(p*Math.PI);ia.style.objectFit=ib.style.objectFit=(a.hist||b.hist)?"contain":"cover";
+ ib.style.opacity=p;ib.style.filter=`blur(${(melt*3).toFixed(1)}px) saturate(${1+melt*.6})`;ia.style.filter=`blur(${(melt*3).toFixed(1)}px) hue-rotate(${(melt*25).toFixed(0)}deg)`;
+ ia.style.transform=ib.style.transform=`scale(${1+melt*.08}) rotate(${(melt*3).toFixed(1)}deg)`;
+ $("labTxt").textContent=p<.5?`${Math.round((1-p)*100)}% ${a.name} · ${Math.round(p*100)}% ${b.name}`:`${Math.round(p*100)}% ${b.name} · ${Math.round((1-p)*100)}% ${a.name}`;
+}
+function labStart(){$("labPlay").textContent="⏸ Stop";labT=setInterval(()=>{const r=$("labRange");let v=+r.value+labDir*2;if(v>=100){v=100;labDir=-1}if(v<=0){v=0;labDir=1}r.value=v;labUpdate()},50)}
+function labStop(){clearInterval(labT);labT=null;$("labPlay").textContent="▶ Auto-morph"}
+
+/* ---------- ONLINE DUEL (Supabase Realtime presence; public key by design) ---------- */
+const SUPA_URL="https://whijwxutskcdpytdwkfj.supabase.co";
+const SUPA_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndoaWp3eHV0c2tjZHB5dGR3a2ZqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwODg5MzEsImV4cCI6MjA5MDY2NDkzMX0.Q3GvJkWUwHLGqG1aEyExovSM7a4oVQvJiGlfxbZvlps";
+const ONLINE_OK=/^https?:$/.test(location.protocol)&&!/claude\.ai$/.test(location.hostname);
+let NET=null;
+const CODE_CHARS="BCDFGHJKLMNPQRSTVWXZ23456789";
+const makeCode=()=>Array.from({length:4},()=>CODE_CHARS[Math.floor(Math.random()*CODE_CHARS.length)]).join("");
+function loadSupabase(){return new Promise((res,rej)=>{if(window.supabase)return res();const s=document.createElement("script");s.src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0/dist/umd/supabase.js";s.onload=()=>res();s.onerror=()=>rej(new Error("load"));document.head.appendChild(s)})}
+function myMeta(){const p=S.players[0];return {id:NET.id,name:playerName(0),av:p.avatar.type==="hist"?p.avatar.id:null,host:NET.host,started:NET.started,seed:NET.seed,cfg:NET.cfg,score:R?R.score:0,correct:R?R.correct:0,wrong:R?R.wrong:0,n:R?R.seen.length:0,done:NET.done,ts:Date.now()}}
+async function netJoin(code,host){
+ $("onlineStatus").textContent="Connecting…";
+ try{await loadSupabase()}catch(e){$("onlineStatus").textContent="Couldn't load the online part. Check the Wi-Fi and try again.";return}
+ if(NET)netLeave(true);
+ const id=Math.random().toString(36).slice(2,10);
+ NET={id,code,host,started:false,seed:null,cfg:null,done:false,opp:null,lastOpp:null,hadOpp:false,oppLeft:false,oppDone:false,sb:window.supabase.createClient(SUPA_URL,SUPA_KEY),ch:null};
+ NET.ch=NET.sb.channel("ff-"+code,{config:{presence:{key:id}}});
+ NET.ch.on("presence",{event:"sync"},netOnSync);
+ NET.ch.subscribe(async status=>{
+  if(!NET)return;
+  if(status==="SUBSCRIBED"){await netTrack();showLobby()}
+  else if(status==="CHANNEL_ERROR"||status==="TIMED_OUT"){$("onlineStatus").textContent="Connection problem. Check the Wi-Fi and try again.";$("lobbyStatus").textContent="Connection lost. Leave the room and try again."}
+ });
+}
+async function netTrack(){if(!NET||!NET.ch)return;try{await NET.ch.track(myMeta())}catch(e){}}
+const netSync=()=>{if(NET&&NET.started)netTrack()};
+function netOpp(){if(!NET||!NET.ch)return null;const st=NET.ch.presenceState();for(const k in st){if(k===NET.id)continue;const m=st[k][0];if(m)return m}return null}
+function netOnSync(){
+ if(!NET)return;const opp=netOpp();NET.opp=opp;if(opp){NET.hadOpp=true;NET.lastOpp=opp;if(opp.done)NET.oppDone=true}else if(NET.hadOpp&&NET.started)NET.oppLeft=true;
+ renderLobby();renderOppHud();
+ if(!NET.started&&!NET.host&&opp&&opp.host&&opp.started&&opp.seed!=null){NET.started=true;NET.seed=opp.seed;NET.cfg=opp.cfg;Object.assign(S.settings,opp.cfg||{});renderHome();netStartRound()}
+ if(NET.done)netCheckResults();
+}
+function avatarFor(m){return m&&m.av&&AVATARS.find(a=>a.id===m.av)?{type:"hist",id:m.av}:{type:"hist",id:"amelia"}}
+function showLobby(){$("lobbyCode").textContent=NET.code;$("btnLobbyStart").hidden=!NET.host;$("lobbyHint").textContent=NET.host?"Tell your opponent this code. They tap Online Duel → Join a room.":"You're in! Waiting for the host to start.";renderLobby();showScreen("s-lobby")}
+function renderLobby(){
+ if(!NET||NET.started)return;const opp=NET.opp;
+ const me=`<div class="lobbyp">${avatarHTML(S.players[0].avatar)}<span>${esc(playerName(0))} (you)</span></div>`;
+ const other=opp?`<div class="lobbyp">${avatarHTML(avatarFor(opp))}<span>${esc(opp.name||"Opponent")}</span></div>`:`<div class="lobbyp empty">${avatarHTML({type:"hist",id:"amelia"},"locked")}<span>Waiting…</span></div>`;
+ $("lobbyPlayers").innerHTML=me+'<div class="vs" style="align-self:center">VS</div>'+other;
+ $("btnLobbyStart").disabled=!opp;
+ $("lobbyStatus").textContent=opp?(NET.host?"Both players are here. Hit Start!":"Waiting for the host to start…"):(NET.host?"Waiting for your opponent to join…":"Nobody else is here yet. Double-check the code.");
+}
+$("btnLobbyStart").onclick=async()=>{if(!NET||!NET.host||!NET.opp)return;NET.seed=Math.floor(Math.random()*2147483647);NET.cfg={minutes:S.settings.minutes,level:S.settings.level,style:S.settings.style,cont:S.settings.cont,hist:S.settings.hist};NET.started=true;await netTrack();netStartRound()};
+$("btnLobbyLeave").onclick=()=>{netLeave(true);renderHome();showScreen("s-home")};
+function netStartRound(){S.mode="online";S.order=[0];S.cur=0;S.results=[];sfx.tap();startRound()}
+function netLeave(){if(!NET)return;try{NET.ch.untrack();NET.sb.removeChannel(NET.ch)}catch(e){}NET=null;$("oppHud").hidden=true}
+function renderOppHud(){
+ if(!NET||!NET.started){$("oppHud").hidden=true;return}
+ const o=NET.opp||NET.lastOpp;$("oppHud").hidden=false;
+ if(!o){$("oppAvatar").innerHTML=avatarHTML({type:"hist",id:"amelia"},"locked");$("oppName").textContent="Opponent";$("oppInfo").textContent="connecting…";$("oppScore").textContent="–";return}
+ $("oppAvatar").innerHTML=avatarHTML(avatarFor(o));$("oppName").textContent=o.name||"Opponent";
+ $("oppInfo").textContent=NET.oppLeft&&!NET.opp?"left the game":(o.done?"finished ✓":`${o.n||0} flags · ${o.correct||0} right`);$("oppScore").textContent=o.score||0;
+}
+function netCheckResults(){
+ if(!NET||!NET.done||!document.getElementById("s-summary").classList.contains("on"))return;
+ if(NET.oppDone||NET.oppLeft||!NET.hadOpp){$("btnSumNext").disabled=false;$("btnSumNext").textContent="See results ➜"}
+ else{$("btnSumNext").disabled=true;$("btnSumNext").textContent="⏳ Waiting for opponent to finish…"}
+}
+function showResultsOnline(){
+ const opp=(NET&&(NET.opp||NET.lastOpp))||{name:"Opponent",score:0,correct:0,wrong:0};
+ S.players[1]={name:opp.name||"Opponent",avatar:avatarFor(opp)};
+ S.results=[S.results[0],{player:1,score:opp.score||0,correct:opp.correct||0,wrong:opp.wrong||0,passed:0,bonus:0}];
+ const keep=S.mode;S.mode="two";showResults();S.mode=keep;
+ $("resRankLabel").textContent="🌐 Online duel · "+$("resRankLabel").textContent;
+ netLeave();
+}
+$("btnCreateRoom").onclick=()=>{document.querySelectorAll("#players input").forEach((inp,i)=>S.players[i].name=inp.value);saveProfile(0,false);savePlayers();sfx.tap();netJoin(makeCode(),true)};
+$("btnJoinRoom").onclick=()=>{const c=$("joinCode").value.trim().toUpperCase();if(c.length!==4){flash("Type the 4-letter code first");return}document.querySelectorAll("#players input").forEach((inp,i)=>S.players[i].name=inp.value);saveProfile(0,false);savePlayers();sfx.tap();netJoin(c,false)};
+$("joinCode").addEventListener("keydown",e=>{if(e.key==="Enter")$("btnJoinRoom").click()});
+
+/* ---------- BOOT ---------- */
+function boot(hot){
+ Object.assign(S.settings,store.get("settings",{}));
+ S.mode=store.get("mode",S.mode);
+ S.custom=store.get("custom",[]);S.profiles=store.get("profiles",[]);
+ S.unlocked=Math.min(AVATARS.length,Math.max(STARTER_LEGENDS,store.get("unlocked",STARTER_LEGENDS)|0));
+ const ps=store.get("players",null);if(ps&&ps.length===2)S.players=ps.map(p=>({name:p.name||"",avatar:p.avatar}));
+ if(hot&&hot.settings){Object.assign(S.settings,hot.settings);if(hot.mode)S.mode=hot.mode;if(hot.players)S.players=hot.players}
+ S.settings.level=Math.min(LEVELS.length-1,Math.max(0,S.settings.level|0));
+ if(!STYLES[S.settings.style])S.settings.style="classic";if(!CONT_GROUPS[S.settings.cont])S.settings.cont="ALL";if(!BONUS[S.settings.bonus])S.settings.bonus="capital";
+ if(![10,20,30,50].includes(S.settings.blitzCount))S.settings.blitzCount=20;if(!["two","solo","practice","blitz","online"].includes(S.mode))S.mode="two";
+ if(!ONLINE_OK){$("modeOnline").hidden=true;if(S.mode==="online")S.mode="two"}
+ S.players.forEach(p=>{if(!p.avatar||(p.avatar.type==="hist"&&AVATARS.findIndex(a=>a.id===p.avatar.id)>=S.unlocked))p.avatar={type:"hist",id:AVATARS[0].id}});
+ renderHome();showScreen("s-home");
+}
+try{window.claude?.hot?.snapshot?.(()=>({settings:S.settings,mode:S.mode,players:S.players}))}catch(e){}
+if(window.claude?.hot?.ready){window.claude.hot.ready(boot)}else{boot(window.claude?.hot?.data??{})}
+</script>
