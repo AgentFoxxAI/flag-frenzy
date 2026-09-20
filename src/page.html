@@ -272,6 +272,16 @@ td .avatar{width:38px;height:38px;border-width:2px}td .avatar .em{font-size:1.15
 .lobbyplayers{display:flex;justify-content:center;gap:20px;flex-wrap:wrap;margin:8px 0}
 .lobbyp{display:flex;flex-direction:column;align-items:center;gap:6px;font-family:var(--font-display);font-weight:600;min-width:120px}
 .lobbyp.empty .avatar{border-style:dashed;opacity:.5}
+.opps{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:8px;margin:-6px 0 12px}
+.opps .opp{margin:0}
+.opp.leader{box-shadow:0 0 0 3px var(--sun),var(--shadow)}
+.lobbyp .btn{margin-top:2px}
+.rk{display:flex;align-items:center;gap:12px;background:var(--surface-2);border-radius:18px;padding:10px 14px;margin-top:10px}
+.rk.first{background:linear-gradient(90deg,color-mix(in srgb,var(--sun) 40%,var(--surface)),var(--surface-2))}
+.rk.me{box-shadow:inset 0 0 0 3px var(--blue)}
+.rkn{font-family:var(--font-display);font-weight:700;font-size:1.7rem;min-width:44px;text-align:center}
+.rkname{flex:1;min-width:0}.rkname b{font-family:var(--font-display);font-size:1.15rem}.rkname .muted{font-weight:800;font-size:.82rem}
+.rksc{font-family:var(--font-display);font-weight:700;font-size:2rem;font-variant-numeric:tabular-nums}
 .opp{display:flex;align-items:center;gap:10px;background:var(--surface);border-radius:16px;padding:8px 12px;margin:-6px 0 12px;box-shadow:var(--shadow)}
 .opp .avatar{width:40px;height:40px;border-width:2px}.opp .avatar .em{font-size:1.2rem}
 .oppname{font-family:var(--font-display);font-weight:600}
@@ -312,7 +322,7 @@ td .avatar{width:38px;height:38px;border-width:2px}td .avatar .em{font-size:1.15
 
   <div class="label" style="margin-bottom:8px">Game mode</div>
   <div class="modes" id="modes">
-    <button class="mode on" data-mode="two"><span class="ic">👥</span>Two Players</button>
+    <button class="mode on" data-mode="two"><span class="ic">👥</span>Pass &amp; Play</button>
     <button class="mode" data-mode="solo"><span class="ic">🧍</span>Solo</button>
     <button class="mode" data-mode="practice"><span class="ic">🎯</span>Practice</button>
     <button class="mode" data-mode="blitz"><span class="ic">⚡</span>Flag Blitz</button>
@@ -320,13 +330,14 @@ td .avatar{width:38px;height:38px;border-width:2px}td .avatar .em{font-size:1.15
   </div>
   <p class="muted" id="modeDesc" style="margin:-6px 0 14px;font-weight:700"></p>
 
+  <div id="countRow" hidden><div class="label" style="margin-bottom:8px">How many players?</div><div class="chips" id="countChips" style="margin-bottom:12px"><button class="chip" data-n="2">2 players</button><button class="chip" data-n="3">3 players</button><button class="chip" data-n="4">4 players</button></div></div>
   <div class="players" id="players"></div>
 
   <div class="set online" id="onlinePanel" hidden>
-    <div class="head"><span class="label">🌐 Play against someone on another tablet</span></div>
+    <div class="head"><span class="label">🌐 Play against up to 3 others, each on their own screen</span></div>
     <div class="duelcfg"><div class="label">Duel settings if you create the room</div><div class="cfgline" id="duelCfg"></div><p class="muted">Whoever creates the room (or challenges a friend) decides these for both players. Change them in the cards above. If you join someone else's room, their settings are used and yours are ignored.</p></div>
     <div class="onlinegrid">
-      <div class="onlinecol"><b>Start a room</b><p class="muted">You pick the settings below. Your friend joins with the code.</p><button class="btn green" id="btnCreateRoom">🏠 Create a room</button></div>
+      <div class="onlinecol"><b>Start a room</b><p class="muted">You pick the settings. Up to 3 others join with the code.</p><button class="btn green" id="btnCreateRoom">🏠 Create a room</button></div>
       <div class="onlinecol"><b>Join a room</b><p class="muted">Type the 4-letter code from the other tablet.</p><div class="row" style="gap:8px"><input id="joinCode" maxlength="4" placeholder="CODE" autocapitalize="characters" autocomplete="off" aria-label="Room code"><button class="btn" id="btnJoinRoom">Join ➜</button></div></div>
     </div>
     <div id="friendsRow" hidden><div class="label sub">⭐ Friends: tap one to challenge them, no code needed</div><div class="chips" id="friendChips"></div><p class="muted" style="font-weight:700;font-size:.85rem;margin:6px 0 0">Your friend needs Flag Frenzy open on their screen to see the challenge.</p></div>
@@ -402,11 +413,11 @@ td .avatar{width:38px;height:38px;border-width:2px}td .avatar .em{font-size:1.15
     <div class="roomcode" id="lobbyCode">ABCD</div>
     <p class="muted" style="font-weight:800;margin:4px 0 14px" id="lobbyHint">Tell your opponent this code. They tap Online Duel → Join a room.</p>
     <div class="lobbyplayers" id="lobbyPlayers"></div>
+    <div id="lobbyInvite" hidden style="margin:4px 0 10px"><div class="label sub">Invite a saved friend into this room</div><div class="chips" id="lobbyInviteChips" style="justify-content:center"></div></div>
     <div class="duelcfg" style="text-align:left"><div class="label">Duel settings, chosen by the host</div><div class="cfgline" id="lobbyCfg"></div><p class="muted" id="lobbyCfgNote"></p></div>
     <div class="lvl-desc" id="lobbyStatus"></div>
     <div class="actions" style="margin-top:16px">
       <button class="btn accent big" id="btnLobbyStart" hidden>▶ Start the duel</button>
-      <button class="btn sm sun" id="btnSaveFriend" hidden>⭐ Save as a friend</button>
       <button class="btn ghost" id="btnLobbyLeave">← Leave room</button>
     </div>
   </div>
@@ -430,7 +441,7 @@ td .avatar{width:38px;height:38px;border-width:2px}td .avatar .em{font-size:1.15
     <div class="score"><div class="label">Score</div><div class="num" id="hudScore">0</div></div>
   </div>
   <div class="timer" id="timer"><div class="fill" id="timerFill"></div><div class="txt" id="timerTxt">2:00</div></div>
-  <div class="opp" id="oppHud" hidden><div id="oppAvatar"></div><div class="oppname" id="oppName">Opponent</div><div class="oppinfo" id="oppInfo"></div><div class="oppscore" id="oppScore">0</div></div>
+  <div class="opps" id="oppHud" hidden></div>
   <div id="fxwrap">
   <div class="stage" id="stage">
     <span class="stylepill" id="stylePill" hidden></span>

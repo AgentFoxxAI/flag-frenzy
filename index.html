@@ -272,6 +272,16 @@ td .avatar{width:38px;height:38px;border-width:2px}td .avatar .em{font-size:1.15
 .lobbyplayers{display:flex;justify-content:center;gap:20px;flex-wrap:wrap;margin:8px 0}
 .lobbyp{display:flex;flex-direction:column;align-items:center;gap:6px;font-family:var(--font-display);font-weight:600;min-width:120px}
 .lobbyp.empty .avatar{border-style:dashed;opacity:.5}
+.opps{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:8px;margin:-6px 0 12px}
+.opps .opp{margin:0}
+.opp.leader{box-shadow:0 0 0 3px var(--sun),var(--shadow)}
+.lobbyp .btn{margin-top:2px}
+.rk{display:flex;align-items:center;gap:12px;background:var(--surface-2);border-radius:18px;padding:10px 14px;margin-top:10px}
+.rk.first{background:linear-gradient(90deg,color-mix(in srgb,var(--sun) 40%,var(--surface)),var(--surface-2))}
+.rk.me{box-shadow:inset 0 0 0 3px var(--blue)}
+.rkn{font-family:var(--font-display);font-weight:700;font-size:1.7rem;min-width:44px;text-align:center}
+.rkname{flex:1;min-width:0}.rkname b{font-family:var(--font-display);font-size:1.15rem}.rkname .muted{font-weight:800;font-size:.82rem}
+.rksc{font-family:var(--font-display);font-weight:700;font-size:2rem;font-variant-numeric:tabular-nums}
 .opp{display:flex;align-items:center;gap:10px;background:var(--surface);border-radius:16px;padding:8px 12px;margin:-6px 0 12px;box-shadow:var(--shadow)}
 .opp .avatar{width:40px;height:40px;border-width:2px}.opp .avatar .em{font-size:1.2rem}
 .oppname{font-family:var(--font-display);font-weight:600}
@@ -312,7 +322,7 @@ td .avatar{width:38px;height:38px;border-width:2px}td .avatar .em{font-size:1.15
 
   <div class="label" style="margin-bottom:8px">Game mode</div>
   <div class="modes" id="modes">
-    <button class="mode on" data-mode="two"><span class="ic">👥</span>Two Players</button>
+    <button class="mode on" data-mode="two"><span class="ic">👥</span>Pass &amp; Play</button>
     <button class="mode" data-mode="solo"><span class="ic">🧍</span>Solo</button>
     <button class="mode" data-mode="practice"><span class="ic">🎯</span>Practice</button>
     <button class="mode" data-mode="blitz"><span class="ic">⚡</span>Flag Blitz</button>
@@ -320,13 +330,14 @@ td .avatar{width:38px;height:38px;border-width:2px}td .avatar .em{font-size:1.15
   </div>
   <p class="muted" id="modeDesc" style="margin:-6px 0 14px;font-weight:700"></p>
 
+  <div id="countRow" hidden><div class="label" style="margin-bottom:8px">How many players?</div><div class="chips" id="countChips" style="margin-bottom:12px"><button class="chip" data-n="2">2 players</button><button class="chip" data-n="3">3 players</button><button class="chip" data-n="4">4 players</button></div></div>
   <div class="players" id="players"></div>
 
   <div class="set online" id="onlinePanel" hidden>
-    <div class="head"><span class="label">🌐 Play against someone on another tablet</span></div>
+    <div class="head"><span class="label">🌐 Play against up to 3 others, each on their own screen</span></div>
     <div class="duelcfg"><div class="label">Duel settings if you create the room</div><div class="cfgline" id="duelCfg"></div><p class="muted">Whoever creates the room (or challenges a friend) decides these for both players. Change them in the cards above. If you join someone else's room, their settings are used and yours are ignored.</p></div>
     <div class="onlinegrid">
-      <div class="onlinecol"><b>Start a room</b><p class="muted">You pick the settings below. Your friend joins with the code.</p><button class="btn green" id="btnCreateRoom">🏠 Create a room</button></div>
+      <div class="onlinecol"><b>Start a room</b><p class="muted">You pick the settings. Up to 3 others join with the code.</p><button class="btn green" id="btnCreateRoom">🏠 Create a room</button></div>
       <div class="onlinecol"><b>Join a room</b><p class="muted">Type the 4-letter code from the other tablet.</p><div class="row" style="gap:8px"><input id="joinCode" maxlength="4" placeholder="CODE" autocapitalize="characters" autocomplete="off" aria-label="Room code"><button class="btn" id="btnJoinRoom">Join ➜</button></div></div>
     </div>
     <div id="friendsRow" hidden><div class="label sub">⭐ Friends: tap one to challenge them, no code needed</div><div class="chips" id="friendChips"></div><p class="muted" style="font-weight:700;font-size:.85rem;margin:6px 0 0">Your friend needs Flag Frenzy open on their screen to see the challenge.</p></div>
@@ -402,11 +413,11 @@ td .avatar{width:38px;height:38px;border-width:2px}td .avatar .em{font-size:1.15
     <div class="roomcode" id="lobbyCode">ABCD</div>
     <p class="muted" style="font-weight:800;margin:4px 0 14px" id="lobbyHint">Tell your opponent this code. They tap Online Duel → Join a room.</p>
     <div class="lobbyplayers" id="lobbyPlayers"></div>
+    <div id="lobbyInvite" hidden style="margin:4px 0 10px"><div class="label sub">Invite a saved friend into this room</div><div class="chips" id="lobbyInviteChips" style="justify-content:center"></div></div>
     <div class="duelcfg" style="text-align:left"><div class="label">Duel settings, chosen by the host</div><div class="cfgline" id="lobbyCfg"></div><p class="muted" id="lobbyCfgNote"></p></div>
     <div class="lvl-desc" id="lobbyStatus"></div>
     <div class="actions" style="margin-top:16px">
       <button class="btn accent big" id="btnLobbyStart" hidden>▶ Start the duel</button>
-      <button class="btn sm sun" id="btnSaveFriend" hidden>⭐ Save as a friend</button>
       <button class="btn ghost" id="btnLobbyLeave">← Leave room</button>
     </div>
   </div>
@@ -430,7 +441,7 @@ td .avatar{width:38px;height:38px;border-width:2px}td .avatar .em{font-size:1.15
     <div class="score"><div class="label">Score</div><div class="num" id="hudScore">0</div></div>
   </div>
   <div class="timer" id="timer"><div class="fill" id="timerFill"></div><div class="txt" id="timerTxt">2:00</div></div>
-  <div class="opp" id="oppHud" hidden><div id="oppAvatar"></div><div class="oppname" id="oppName">Opponent</div><div class="oppinfo" id="oppInfo"></div><div class="oppscore" id="oppScore">0</div></div>
+  <div class="opps" id="oppHud" hidden></div>
   <div id="fxwrap">
   <div class="stage" id="stage">
     <span class="stylepill" id="stylePill" hidden></span>
@@ -891,7 +902,7 @@ const STAGE_MORPH=[.85,.65,.45,.22,0];
 const STAGE_PTS=[5,4,3,2,1];
 const TILE_N=24;
 const TILE_COLORS=["#FF5E5B","#FFD23F","#2BB673","#2D7DD2","#7B5CFF","#FF8C42"];
-const DEFAULT_SETTINGS={minutes:2,level:0,bonus:"capital",style:"classic",cont:"ALL",sound:true,speak:false,practiceTimed:false,practiceAuto:true,flagset:"modern",spotSize:"m",blitzCount:20};
+const DEFAULT_SETTINGS={minutes:2,level:0,bonus:"capital",style:"classic",cont:"ALL",sound:true,speak:false,practiceTimed:false,practiceAuto:true,flagset:"modern",spotSize:"m",blitzCount:20,localCount:2};
 
 /* ---------- STORAGE ---------- */
 const store={
@@ -902,7 +913,7 @@ const store={
 /* ---------- STATE ---------- */
 const S={
  mode:"two",
- players:[{name:"",avatar:{type:"hist",id:"einstein"}},{name:"",avatar:{type:"hist",id:"cleopatra"}}],
+ players:[{name:"",avatar:{type:"hist",id:"einstein"}},{name:"",avatar:{type:"hist",id:"cleopatra"}},{name:"",avatar:{type:"hist",id:"caesar"}},{name:"",avatar:{type:"hist",id:"amelia"}}],
  settings:{...DEFAULT_SETTINGS},
  custom:[],profiles:[],friends:[],unlocked:STARTER_LEGENDS,order:[],cur:0,results:[]
 };
@@ -958,7 +969,8 @@ function speak(text,force){
 
 /* ---------- HOME ---------- */
 function renderPlayers(){
- const box=$("players");const n=S.mode==="two"?2:1;box.classList.toggle("solo",n===1);
+ const box=$("players");const n=S.mode==="two"?S.settings.localCount:1;box.classList.toggle("solo",n===1);
+ $("countRow").hidden=S.mode!=="two";document.querySelectorAll("#countChips .chip").forEach(c=>c.classList.toggle("on",+c.dataset.n===S.settings.localCount));
  const profOpts=S.profiles.map((p,j)=>`<option value="${j}">${esc(p.name)}</option>`).join("");
  const who={two:i=>"Player "+(i+1),solo:()=>"Solo player",practice:()=>"Practicing",blitz:()=>"Blitz player",online:()=>"You"}[S.mode];
  box.innerHTML=S.players.slice(0,n).map((p,i)=>`
@@ -992,7 +1004,7 @@ function renderLevels(){
 }
 function renderHome(){
  document.querySelectorAll("#modes .mode").forEach(m=>m.classList.toggle("on",m.dataset.mode===S.mode));
- $("modeDesc").textContent={two:"Take turns. Highest score wins the crown! 👑",solo:"Just you against the clock. Beat your best score!",practice:"No pressure, no lost points. Learn flags at your own pace.",blitz:"⚡ Flag Blitz: full flags, no reveal. How fast can you name them?",online:"🌐 Two tablets, same flags, same time. Hosting? Pick the settings below, then create the room at the bottom. Joining? Skip straight to Join a room."}[S.mode];
+ $("modeDesc").textContent={two:"2 to 4 players take turns on this screen. Highest score wins the crown! 👑",solo:"Just you against the clock. Beat your best score!",practice:"No pressure, no lost points. Learn flags at your own pace.",blitz:"⚡ Flag Blitz: full flags, no reveal. How fast can you name them?",online:"🌐 Two tablets, same flags, same time. Hosting? Pick the settings below, then create the room at the bottom. Joining? Skip straight to Join a room."}[S.mode];
  renderPlayers();renderLevels();
  $("timeVal").textContent=fmt(S.settings.minutes*60);$("timeRange").value=S.settings.minutes;
  const isP=S.mode==="practice",isB=S.mode==="blitz",isO=S.mode==="online";
@@ -1022,6 +1034,7 @@ document.querySelectorAll("#modes .mode").forEach(m=>m.onclick=()=>{S.mode=m.dat
 $("timeRange").oninput=e=>{S.settings.minutes=+e.target.value;$("timeVal").textContent=fmt(S.settings.minutes*60);saveSettings()};
 document.querySelectorAll("#bonusChips .chip").forEach(c=>c.onclick=()=>{S.settings.bonus=c.dataset.bonus;saveSettings();renderHome();sfx.tap()});
 document.querySelectorAll("#styleChips .chip").forEach(c=>c.onclick=()=>{S.settings.style=c.dataset.style;saveSettings();renderHome();sfx.tap()});
+document.querySelectorAll("#countChips .chip").forEach(c=>c.onclick=()=>{S.settings.localCount=+c.dataset.n;saveSettings();renderHome();sfx.tap()});
 document.querySelectorAll("#blitzChips .chip").forEach(c=>c.onclick=()=>{S.settings.blitzCount=+c.dataset.n;saveSettings();renderHome();sfx.tap()});
 $("swSound").onclick=()=>{S.settings.sound=!S.settings.sound;saveSettings();renderHome();sfx.tap()};
 $("swSpeak").onclick=()=>{S.settings.speak=!S.settings.speak;saveSettings();renderHome();if(S.settings.speak)speak("I will read the choices out loud.",true)};
@@ -1029,7 +1042,7 @@ $("swPracticeTimed").onclick=()=>{S.settings.practiceTimed=!S.settings.practiceT
 $("swPracticeAuto").onclick=()=>{S.settings.practiceAuto=!S.settings.practiceAuto;saveSettings();renderHome();sfx.tap()};
 document.querySelectorAll("#flagsetChips .chip").forEach(c=>c.onclick=()=>{S.settings.flagset=c.dataset.fs;saveSettings();renderHome();sfx.tap()});
 document.querySelectorAll("#spotChips .chip").forEach(c=>c.onclick=()=>{S.settings.spotSize=c.dataset.sp;saveSettings();renderHome();sfx.tap()});
-$("btnSaveSettings").onclick=()=>{saveSettings();savePlayers();[0,1].forEach(i=>saveProfile(i,false));store.set("profiles",S.profiles);const t=new Date();$("saveStatus").textContent=`Saved ✓ ${t.toLocaleTimeString([],{hour:"numeric",minute:"2-digit"})}`;flash("Settings and players saved ✓");sfx.correct();renderPlayers()};
+$("btnSaveSettings").onclick=()=>{saveSettings();savePlayers();S.players.slice(0,S.mode==="two"?S.settings.localCount:1).forEach((_,i)=>saveProfile(i,false));store.set("profiles",S.profiles);const t=new Date();$("saveStatus").textContent=`Saved ✓ ${t.toLocaleTimeString([],{hour:"numeric",minute:"2-digit"})}`;flash("Settings and players saved ✓");sfx.correct();renderPlayers()};
 $("btnResetSettings").onclick=()=>askConfirm("Reset settings?","Round time, difficulty, challenges and sound go back to the defaults. Players and scores are kept.","Reset","Cancel",()=>{S.settings={...DEFAULT_SETTINGS};saveSettings();renderHome();flash("Settings reset")});
 $("btnHof").onclick=()=>{renderHof();showScreen("s-hof")};
 $("btnHof2").onclick=()=>{renderHof();showScreen("s-hof")};
@@ -1071,7 +1084,7 @@ $("avModal").onclick=e=>{if(e.target===$("avModal"))$("avDone").click()};
 /* ---------- GAME FLOW ---------- */
 $("btnStart").onclick=()=>{
  if(S.mode==="online"){flash("Create or join a room above");return}
- S.order=S.mode==="two"?[0,1]:[0];S.cur=0;S.results=[];
+ S.order=S.mode==="two"?Array.from({length:S.settings.localCount},(_,i)=>i):[0];S.cur=0;S.results=[];
  document.querySelectorAll("#players input").forEach((inp,i)=>S.players[i].name=inp.value);
  S.order.forEach(i=>saveProfile(i,false));savePlayers();
  sfx.tap();goReady();
@@ -1298,11 +1311,12 @@ function endRound(){
   $("sumScore").textContent=res.score;$("sumSub").textContent=`${playerName(R.player)} · best streak ${res.best}`;
   $("sumRight").textContent=res.correct;$("sumWrong").textContent=res.wrong;$("sumPass").textContent=res.passed;
   const hasBonus=S.mode!=="practice"&&S.mode!=="online"&&S.settings.bonus!=="off";
-  $("btnSumNext").textContent=hasBonus?"🎁 Bonus round ➜":(S.mode==="two"&&S.cur<1?"Next player ➜":(S.mode==="practice"?"Done ➜":"See results ➜"));
+  $("btnSumNext").textContent=hasBonus?"🎁 Bonus round ➜":(S.mode==="two"&&S.cur<S.order.length-1?"Next player ➜":(S.mode==="practice"?"Done ➜":"See results ➜"));
  }
  $("btnSumNext").disabled=false;
- if(S.mode==="online"&&NET){NET.done=true;netSendFinal();netCheckResults()}
+ if(S.mode==="online"&&NET){NET.done=true;NET.doneAt=Date.now();netSendFinal()}
  showScreen("s-summary");
+ if(S.mode==="online"&&NET)netCheckResults();
 }
 $("btnSumNext").onclick=()=>{sfx.tap();if(S.mode!=="practice"&&S.mode!=="blitz"&&S.mode!=="online"&&S.settings.bonus!=="off")startBonus();else afterPlayer()};
 function afterPlayer(){
@@ -1386,11 +1400,9 @@ function showResults(){
  hof.sort((a,b)=>b.s-a.s);store.set("hof",hof.slice(0,30));
  const rank=r=>hof.findIndex(h=>h.n===playerName(r.player)&&h.s===r.score)+1;
  if(S.mode==="two"){
-  const [a,b]=S.results;const tie=a.score===b.score;const w=a.score>=b.score?a:b;
-  if(!tie){const wins=store.get("wins",{});const nm=playerName(w.player);wins[nm]=(wins[nm]||0)+1;store.set("wins",wins)}
-  $("resTitle").textContent=tie?"🤝 It's a tie!":`🏆 ${playerName(w.player)} wins!`;
-  $("resBody").innerHTML=`<div class="versus">${[a,b].map(r=>`<div class="pl ${!tie&&r===w?"win":""}"><span class="crown">👑</span>${avatarHTML(S.players[r.player].avatar,"xl")}<div class="nm">${playerName(r.player)}</div><div class="sc">${r.score}</div><div class="muted" style="font-weight:800;font-size:.85rem">${r.correct} right${r.bonus?` · +${r.bonus} bonus`:""}</div></div>`).join('<div class="vs">VS</div>')}</div>`;
-  $("resRankLabel").textContent=`Leaderboard: ${playerName(a.player)} #${rank(a)} · ${playerName(b.player)} #${rank(b)} · ${L.emoji} ${L.name}`;
+  const entries=S.results.map(r=>({name:playerName(r.player),avatar:S.players[r.player].avatar,score:r.score,correct:r.correct,bonus:r.bonus}));
+  showRanking(entries,true);
+  $("resRankLabel").textContent="Leaderboard: "+S.results.map(r=>`${playerName(r.player)} #${rank(r)}`).join(" · ")+` · ${L.emoji} ${L.name}`;
  }else{
   const r=S.results[0];const rk=rank(r);
   $("resTitle").textContent=rk===1?"🥇 New high score!":"🎉 Great round!";
@@ -1403,6 +1415,14 @@ function showResults(){
  else unlockHTML=`<div class="unlock"><span style="font-size:2rem">🏅</span><div><b>All ${AVATARS.length} World Legends unlocked!</b><p>You've met every Legend. Legendary.</p></div></div>`;
  $("resUnlock").innerHTML=unlockHTML;
  showScreen("s-results");sfx.fanfare();confetti();
+}
+function showRanking(entries,countWin){
+ entries.sort((x,y)=>y.score-x.score);const top=entries[0].score;const winners=entries.filter(e=>e.score===top);
+ if(winners.length===1){$("resTitle").textContent=`🏆 ${winners[0].name} wins!`;if(countWin===true||(countWin==="me"&&winners[0].me)){const wins=store.get("wins",{});wins[winners[0].name]=(wins[winners[0].name]||0)+1;store.set("wins",wins)}}
+ else $("resTitle").textContent=`🤝 Tie: ${winners.map(w=>w.name).join(" & ")}!`;
+ let rk=0,prev=null;
+ $("resBody").innerHTML=entries.map((e,i)=>{if(e.score!==prev){rk=i+1;prev=e.score}const medal=["🥇","🥈","🥉"][rk-1]||rk+".";
+  return `<div class="rk ${rk===1?"first":""} ${e.me?"me":""}"><span class="rkn">${medal}</span>${avatarHTML(e.avatar,"sm")}<div class="rkname"><b>${esc(e.name)}</b>${e.me?' <span class="muted">(you)</span>':""}<div class="muted">${e.correct||0} right${e.bonus?` · +${e.bonus} bonus`:""}${e.left?" · left early":""}${e.playing?" · still playing":""}</div></div><div class="rksc">${e.score}</div></div>`}).join("");
 }
 function confetti(){
  if(matchMedia("(prefers-reduced-motion: reduce)").matches)return;
@@ -1473,16 +1493,16 @@ function loadSupabase(){return new Promise((res,rej)=>{if(window.supabase)return
 // so presence is tracked ONCE per connection and only says "I am in this room". Everything that changes
 // (start signal, scores, finish) travels as broadcast messages, which are fire-and-forget, so they are repeated.
 function whoAmI(){const p=S.players[0];return {id:NET.id,did:DID,name:playerName(0),av:p.avatar.type==="hist"?p.avatar.id:null,cav:p.avatar.type==="custom",host:NET.host,cfg:NET.host?NET.cfg:null}}
-function myMeta(){return {...whoAmI(),started:NET.started,seed:NET.seed,cfg:NET.cfg,score:R?R.score:0,correct:R?R.correct:0,wrong:R?R.wrong:0,n:R?R.seen.length:0,done:NET.done,ts:Date.now()}}
+function myMeta(){return {...whoAmI(),started:NET.started,seed:NET.seed,roster:NET.host?NET.roster:null,cfg:NET.cfg,score:R?R.score:0,correct:R?R.correct:0,wrong:R?R.wrong:0,n:R?R.seen.length:0,done:NET.done,ts:Date.now()}}
 function netSubscribe(){
  const ch=NET.sb.channel("ff-"+NET.code,{config:{presence:{key:NET.id}}});NET.ch=ch;
  ch.on("presence",{event:"sync"},netOnSync);
- ch.on("broadcast",{event:"state"},m=>{const p=m&&m.payload;if(!NET||!p||p.id===NET.id)return;if(!NET.live||(p.ts||0)>=(NET.live.ts||0)){NET.live=p;NET.liveAt=Date.now();netOnSync()}});
- ch.on("broadcast",{event:"needav"},m=>{const p=m&&m.payload;if(!NET||!p||p.id===NET.id||!NET.myPic)return;ch.send({type:"broadcast",event:"avatar",payload:{id:NET.id,data:NET.myPic}})});
- ch.on("broadcast",{event:"avatar"},m=>{const p=m&&m.payload;if(!NET||!p||p.id===NET.id)return;if(typeof p.data==="string"&&p.data.startsWith("data:image/jpeg;base64,")&&p.data.length<60000){NET.oppPic=p.data;renderLobby();renderOppHud()}});
+ ch.on("broadcast",{event:"state"},m=>{const p=m&&m.payload;if(!NET||!p||!p.id||p.id===NET.id)return;const cur=NET.lives[p.id];if(!cur||(p.ts||0)>=(cur.p.ts||0)){NET.lives[p.id]={p,at:Date.now()};netOnSync()}});
+ ch.on("broadcast",{event:"needav"},m=>{const p=m&&m.payload;if(!NET||!p||p.id===NET.id||p.want!==NET.id||!NET.myPic)return;ch.send({type:"broadcast",event:"avatar",payload:{id:NET.id,data:NET.myPic}})});
+ ch.on("broadcast",{event:"avatar"},m=>{const p=m&&m.payload;if(!NET||!p||p.id===NET.id)return;if(typeof p.data==="string"&&p.data.startsWith("data:image/jpeg;base64,")&&p.data.length<60000){NET.pics[p.id]=p.data;renderLobby();renderOppHud()}});
  ch.subscribe(async status=>{
   if(!NET||NET.ch!==ch)return;
-  if(status==="SUBSCRIBED"){NET.retries=0;try{await ch.track({...whoAmI(),ts:Date.now()})}catch(e){}netSend();if(!NET.started&&!NET.shown){NET.shown=true;showLobby()}}
+  if(status==="SUBSCRIBED"){NET.retries=0;try{await ch.track({...whoAmI(),ts:NET.joinTs})}catch(e){}netSend();if(!NET.started&&!NET.shown){NET.shown=true;showLobby()}}
   else if(status==="CLOSED"||status==="CHANNEL_ERROR"||status==="TIMED_OUT"){
    // dropped connection: rejoin quietly a few times so a Wi-Fi blip does not end the duel
    if(NET.leaving)return;NET.retries=(NET.retries||0)+1;
@@ -1496,7 +1516,7 @@ async function netJoin(code,host,calling){
  try{await getSB()}catch(e){$("onlineStatus").textContent="Couldn't load the online part. Check the Wi-Fi and try again.";return}
  if(NET)netLeave(true);
  const id=Math.random().toString(36).slice(2,10);
- NET={id,code,host,started:false,seed:null,cfg:host?makeCfg():null,done:false,opp:null,lastOpp:null,live:null,liveAt:0,hadOpp:false,oppLeft:false,oppDone:false,sb:SB,ch:null,calling:calling||null,callCh:null,callT:null,hb:null,retries:0,shown:false,leaving:false};
+ NET={id,code,host,started:false,seed:null,cfg:host?makeCfg():null,done:false,peers:[],known:{},lives:{},pics:{},roster:null,asked:{},invites:{},joinTs:Date.now(),sb:SB,ch:null,calling:calling||null,hb:null,retries:0,shown:false,leaving:false};
  makeSmallPic();netSubscribe();
 }
 function netSend(){if(!NET||!NET.ch)return;try{NET.ch.send({type:"broadcast",event:"state",payload:myMeta()})}catch(e){}}
@@ -1505,57 +1525,72 @@ setInterval(()=>{if(NET&&NET.started)netOnSync()},3000);
 function netHeartbeat(on){if(!NET)return;clearInterval(NET.hb);NET.hb=on?setInterval(netSend,2500):null}
 function netSendFinal(){let n=0;const go=()=>{if(!NET||!NET.done)return;netSend();if(++n<8)setTimeout(go,1200)};go()}
 function makeSmallPic(){const av=S.players[0].avatar;if(!NET||av.type!=="custom")return;const im=new Image();im.onload=()=>{const c=document.createElement("canvas");c.width=c.height=96;c.getContext("2d").drawImage(im,0,0,96,96);if(NET)NET.myPic=c.toDataURL("image/jpeg",.7)};im.src=av.data}
-function netOpp(){if(!NET||!NET.ch)return null;let who=null;
- try{const st=NET.ch.presenceState();for(const k in st){if(k===NET.id)continue;for(const m of st[k]){if(m&&(!who||(m.ts||0)>(who.ts||0)))who=m}}}catch(e){}
- const l=NET.live,liveFresh=l&&Date.now()-NET.liveAt<9000;
- if(!who&&!liveFresh)return null;               // not in the room and silent for 9s: gone
- return {...(who||{}),...(l&&(!who||l.id===who.id||!who.id)?l:{})}}  // identity from presence, numbers from the newest broadcast
+const MAX_PLAYERS=4;
+// Everyone else in the room: identity from presence, numbers from each player's newest broadcast.
+function netPeers(){if(!NET||!NET.ch)return [];const who={};
+ try{const st=NET.ch.presenceState();for(const k in st){if(k===NET.id)continue;for(const m of st[k]){if(m&&(!who[k]||(m.ts||0)>(who[k].ts||0)))who[k]=m}}}catch(e){}
+ const ids=new Set(Object.keys(who));for(const id in NET.lives){if(Date.now()-NET.lives[id].at<15000)ids.add(id)}
+ if(NET.roster)for(const id of NET.roster){if(id!==NET.id)ids.add(id)}
+ let list=[...ids].map(id=>{const l=NET.lives[id];const here=!!who[id]||!!(l&&Date.now()-l.at<15000);
+  const merged={...(NET.known[id]||{}),...(who[id]||{}),...(l?l.p:{}),id,joinTs:(who[id]&&who[id].ts)||(NET.known[id]&&NET.known[id].joinTs)||0,here};NET.known[id]=merged;return merged});
+ if(NET.roster)list=list.filter(p=>NET.roster.includes(p.id));
+ return list.sort((x,y)=>(x.joinTs-y.joinTs)||(x.id<y.id?-1:1)).slice(0,NET.roster?MAX_PLAYERS:MAX_PLAYERS+2)}
 function netOnSync(){
- if(!NET)return;const opp=netOpp();NET.opp=opp;
- if(opp&&!NET.hadOpp)setTimeout(netSend,300);
- if(opp){NET.hadOpp=true;NET.oppLeft=false;NET.lastOpp={...(NET.lastOpp||{}),...opp};if(opp.done)NET.oppDone=true}else if(NET.hadOpp&&NET.started)NET.oppLeft=true;
- if(opp&&opp.cav&&!NET.oppPic&&(!NET.askedAt||Date.now()-NET.askedAt>3000)){NET.askedAt=Date.now();try{NET.ch.send({type:"broadcast",event:"needav",payload:{id:NET.id}})}catch(e){}}
+ if(!NET)return;const peers=netPeers();NET.peers=peers;
+ // room is capped at four: the newest arrival steps back out
+ if(!NET.started&&!NET.host&&peers.filter(p=>p.here&&p.joinTs&&p.joinTs<NET.joinTs).length>=MAX_PLAYERS){netLeave();renderHome();showScreen("s-home");flash("That room is full (4 players max)");return}
+ if(peers.length&&!NET.greeted){NET.greeted=true;setTimeout(netSend,300)}
+ for(const p of peers){if(p.cav&&!NET.pics[p.id]&&(!NET.asked[p.id]||Date.now()-NET.asked[p.id]>3000)){NET.asked[p.id]=Date.now();try{NET.ch.send({type:"broadcast",event:"needav",payload:{id:NET.id,want:p.id}})}catch(e){}}}
  renderLobby();renderOppHud();
- if(!NET.started&&!NET.host&&opp&&opp.host&&opp.started&&opp.seed!=null){NET.started=true;NET.seed=opp.seed;NET.cfg=opp.cfg;Object.assign(S.settings,opp.cfg||{});renderHome();netStartRound()}
+ const host=peers.find(p=>p.host&&p.started&&p.seed!=null);
+ if(!NET.started&&!NET.host&&host){
+  if(Array.isArray(host.roster)&&!host.roster.includes(NET.id)){netLeave();renderHome();showScreen("s-home");flash("That game already started. Ask them for a new room.");return}
+  NET.started=true;NET.seed=host.seed;NET.cfg=host.cfg;NET.roster=host.roster||null;Object.assign(S.settings,host.cfg||{});renderHome();netStartRound()}
  if(NET.done)netCheckResults();
 }
-function avatarFor(m){if(m&&m.cav&&NET&&NET.oppPic)return {type:"custom",data:NET.oppPic};return m&&m.av&&AVATARS.find(a=>a.id===m.av)?{type:"hist",id:m.av}:{type:"hist",id:"amelia"}}
-function showLobby(){$("lobbyCode").textContent=NET.code;$("btnLobbyStart").hidden=!NET.host;$("lobbyHint").textContent=NET.calling?`Calling ${NET.calling.name}… They need Flag Frenzy open on their screen. Or just tell them the code.`:(NET.host?"Tell your opponent this code. They tap Online Duel → Join a room.":"You're in! Waiting for the host to start.");renderLobby();showScreen("s-lobby")}
+function avatarFor(m){if(m&&m.cav&&NET&&NET.pics[m.id])return {type:"custom",data:NET.pics[m.id]};return m&&m.av&&AVATARS.find(a=>a.id===m.av)?{type:"hist",id:m.av}:{type:"hist",id:"amelia"}}
+function showLobby(){$("lobbyCode").textContent=NET.code;$("btnLobbyStart").hidden=!NET.host;$("lobbyHint").textContent=NET.calling?`Calling ${NET.calling.name}… They need Flag Frenzy open on their screen. Or just tell them the code.`:(NET.host?"Tell the other players this code. They tap Online Duel → Join a room. Up to 4 can play.":"You're in! Waiting for the host to start.");renderLobby();showScreen("s-lobby");if(NET.calling)pingFriend(NET.calling)}
 function renderLobby(){
- if(!NET||NET.started)return;const opp=NET.opp;
- const me=`<div class="lobbyp">${avatarHTML(S.players[0].avatar)}<span>${esc(playerName(0))} (you)</span></div>`;
- const other=opp?`<div class="lobbyp">${avatarHTML(avatarFor(opp))}<span>${esc(opp.name||"Opponent")}</span></div>`:`<div class="lobbyp empty">${avatarHTML({type:"hist",id:"amelia"},"locked")}<span>Waiting…</span></div>`;
- $("lobbyPlayers").innerHTML=me+'<div class="vs" style="align-self:center">VS</div>'+other;
- $("btnLobbyStart").disabled=!opp;
- const hostCfg=NET.host?NET.cfg:(opp&&opp.host?opp.cfg:null);$("lobbyCfg").textContent=cfgSummary(hostCfg);$("lobbyCfgNote").textContent=NET.host?"To change these, leave the room, adjust the settings, and create a new room.":"These come from the host's tablet. Your own settings are not used in this duel.";
- const fb=$("btnSaveFriend"),canF=!!(opp&&opp.did&&!S.friends.some(f=>f.did===opp.did));fb.hidden=!canF;if(canF){fb.textContent=`⭐ Save ${opp.name||"them"} as a friend`;fb.onclick=()=>{saveFriend(opp);renderLobby()}}
- $("lobbyStatus").textContent=opp?(NET.host?"Both players are here. Hit Start!":"Waiting for the host to start…"):(NET.host?"Waiting for your opponent to join…":"Nobody else is here yet. Double-check the code.");
+ if(!NET||NET.started)return;const peers=(NET.peers||[]).filter(p=>p.here).slice(0,MAX_PLAYERS-1);
+ let h=`<div class="lobbyp">${avatarHTML(S.players[0].avatar)}<span>${esc(playerName(0))} (you)</span></div>`;
+ h+=peers.map(p=>{const canF=p.did&&p.did!==DID&&!S.friends.some(f=>f.did===p.did);return `<div class="lobbyp">${avatarHTML(avatarFor(p))}<span>${esc(p.name||"Player")}${p.host?" 👑":""}</span>${canF?`<button class="btn sm sun" data-savefriend="${esc(p.id)}">⭐ Save friend</button>`:""}</div>`}).join("");
+ for(let i=peers.length+1;i<MAX_PLAYERS;i++)h+=`<div class="lobbyp empty">${avatarHTML({type:"hist",id:"amelia"},"locked")}<span>Open seat</span></div>`;
+ $("lobbyPlayers").innerHTML=h;
+ $("lobbyPlayers").querySelectorAll("[data-savefriend]").forEach(b=>b.onclick=()=>{saveFriend(NET.known[b.dataset.savefriend]);renderLobby()});
+ $("btnLobbyStart").disabled=!peers.length;$("btnLobbyStart").textContent=peers.length?`▶ Start with ${peers.length+1} players`:"▶ Start";
+ const hostPeer=peers.find(p=>p.host);const hostCfg=NET.host?NET.cfg:(hostPeer?hostPeer.cfg:null);$("lobbyCfg").textContent=cfgSummary(hostCfg);$("lobbyCfgNote").textContent=NET.host?"To change these, leave the room, adjust the settings, and create a new room.":"These come from the host's screen. Your own settings are not used in this game.";
+ const inv=S.friends.filter(f=>!peers.some(p=>p.did===f.did));$("lobbyInvite").hidden=!inv.length||peers.length>=MAX_PLAYERS-1;
+ $("lobbyInviteChips").innerHTML=inv.map(f=>`<button class="chip ${NET.invites[f.did]?"on":""}" data-inv="${esc(f.did)}">${NET.invites[f.did]?"📣 Calling":"➕"} ${esc(f.name)}</button>`).join("");
+ $("lobbyInviteChips").querySelectorAll("[data-inv]").forEach(b=>b.onclick=()=>{pingFriend(S.friends.find(f=>f.did===b.dataset.inv));renderLobby()});
+ $("lobbyStatus").textContent=peers.length?`${peers.length+1} of ${MAX_PLAYERS} players are here. `+(NET.host?"Start whenever you're ready, or wait for more.":"Waiting for the host to start…"):(NET.host?"Waiting for players to join…":"Nobody else is here yet. Double-check the code.");
 }
-$("btnLobbyStart").onclick=async()=>{if(!NET||!NET.host||!NET.opp)return;NET.seed=Math.floor(Math.random()*2147483647);NET.cfg=makeCfg();NET.started=true;let k=0;const announce=()=>{if(!NET||!NET.started)return;netSend();if(++k<6)setTimeout(announce,700)};announce();netStartRound()};
+$("btnLobbyStart").onclick=async()=>{if(!NET||!NET.host)return;const peers=(NET.peers||[]).filter(p=>p.here).slice(0,MAX_PLAYERS-1);if(!peers.length)return;NET.seed=Math.floor(Math.random()*2147483647);NET.cfg=makeCfg();NET.roster=[NET.id,...peers.map(p=>p.id)];NET.started=true;let k=0;const announce=()=>{if(!NET||!NET.started)return;netSend();if(++k<6)setTimeout(announce,700)};announce();netStartRound()};
 $("btnLobbyLeave").onclick=()=>{netLeave(true);renderHome();showScreen("s-home")};
 function netStartRound(){S.mode="online";S.order=[0];S.cur=0;S.results=[];sfx.tap();netHeartbeat(true);startRound()}
-function netLeave(){if(!NET)return;NET.leaving=true;clearInterval(NET.hb);try{clearInterval(NET.callT);if(NET.callCh)NET.sb.removeChannel(NET.callCh);NET.ch.untrack();NET.sb.removeChannel(NET.ch)}catch(e){}NET=null;$("oppHud").hidden=true}
+function netLeave(){if(!NET)return;NET.leaving=true;clearInterval(NET.hb);try{for(const d in NET.invites){clearInterval(NET.invites[d].t);NET.sb.removeChannel(NET.invites[d].ch)}NET.ch.untrack();NET.sb.removeChannel(NET.ch)}catch(e){}NET=null;$("oppHud").hidden=true}
+const peerGone=p=>!p.here&&!p.done;
 function renderOppHud(){
- if(!NET||!NET.started){$("oppHud").hidden=true;return}
- const o=NET.opp||NET.lastOpp;$("oppHud").hidden=false;
- if(!o){$("oppAvatar").innerHTML=avatarHTML({type:"hist",id:"amelia"},"locked");$("oppName").textContent="Opponent";$("oppInfo").textContent="connecting…";$("oppScore").textContent="–";return}
- $("oppAvatar").innerHTML=avatarHTML(avatarFor(o));$("oppName").textContent=o.name||"Opponent";
- $("oppInfo").textContent=NET.oppLeft&&!NET.opp?"left the game":(o.done?"finished ✓":`${o.n||0} flags · ${o.correct||0} right`);$("oppScore").textContent=o.score||0;
+ const box=$("oppHud");if(!NET||!NET.started){box.hidden=true;return}
+ const peers=NET.peers||[];box.hidden=false;const best=Math.max(R?R.score:0,...peers.map(p=>p.score||0));
+ box.innerHTML=peers.length?peers.map(p=>`<div class="opp ${(p.score||0)===best&&best>0?"leader":""}">${avatarHTML(avatarFor(p))}<div class="oppname">${esc(p.name||"Player")}</div><div class="oppinfo">${peerGone(p)?"left the game":(p.done?"finished ✓":`${p.n||0} flags · ${p.correct||0} right`)}</div><div class="oppscore">${p.score||0}</div></div>`).join(""):`<div class="opp"><div class="oppinfo">Connecting to the other players…</div></div>`;
 }
 function netCheckResults(){
  if(!NET||!NET.done||!document.getElementById("s-summary").classList.contains("on"))return;
- if(NET.oppDone||NET.oppLeft||!NET.hadOpp){$("btnSumNext").disabled=false;$("btnSumNext").textContent="See results ➜"}
- else{$("btnSumNext").disabled=true;$("btnSumNext").textContent="⏳ Waiting for opponent to finish…"}
+ const waiting=(NET.peers||[]).filter(p=>!p.done&&p.here);
+ if(!waiting.length){$("btnSumNext").disabled=false;$("btnSumNext").textContent="See results ➜"}
+ else if(Date.now()-(NET.doneAt||0)>20000){$("btnSumNext").disabled=false;$("btnSumNext").textContent=`See results without ${waiting.map(p=>p.name||"a player").join(" and ")} ➜`}
+ else{$("btnSumNext").disabled=true;$("btnSumNext").textContent=`⏳ Waiting for ${waiting.map(p=>p.name||"a player").join(" and ")}…`}
 }
 function showResultsOnline(){
- const fresh=NET?netOpp():null;const cands=[fresh,NET&&NET.opp,NET&&NET.lastOpp,NET&&NET.live].filter(Boolean);
- const opp=cands.sort((a,b)=>(b.ts||0)-(a.ts||0))[0]||{name:"Opponent",score:0,correct:0,wrong:0};
- S.players[1]={name:opp.name||"Opponent",avatar:avatarFor(opp)};
- S.results=[S.results[0],{player:1,score:opp.score||0,correct:opp.correct||0,wrong:opp.wrong||0,passed:0,bonus:0}];
- const keep=S.mode;S.mode="two";showResults();S.mode=keep;
- $("resRankLabel").textContent="🌐 Online duel · "+$("resRankLabel").textContent;
- if(opp.did&&!S.friends.some(f=>f.did===opp.did)){const b=document.createElement("button");b.className="btn sm sun";b.style.marginTop="12px";b.textContent=`⭐ Save ${opp.name||"them"} as a friend`;b.onclick=()=>{saveFriend(opp);b.remove()};$("resUnlock").appendChild(b)}
- netLeave();
+ const peers=NET?netPeers():[];const mine=S.results[0];const L=LEVELS[S.settings.level];
+ const entries=[{name:playerName(0),avatar:S.players[0].avatar,score:mine.score,correct:mine.correct,me:true},...peers.map(p=>({name:p.name||"Player",avatar:avatarFor(p),score:p.score||0,correct:p.correct||0,left:peerGone(p),playing:!p.done&&p.here,did:p.did,pid:p.id}))];
+ const hof=store.get("hof",[]);hof.push({n:playerName(0),a:S.players[0].avatar,s:mine.score,l:S.settings.level,ln:L.emoji+" "+L.name,m:S.settings.minutes,d:new Date().toISOString().slice(0,10),mode:"online"});hof.sort((a,b)=>b.s-a.s);store.set("hof",hof.slice(0,30));
+ showRanking(entries,"me");
+ $("resRankLabel").textContent=`🌐 Online game · ${entries.length} players · ${L.emoji} ${L.name} · ${fmt(S.settings.minutes*60)}`;
+ let unlockHTML="";if(S.unlocked<AVATARS.length){const a=AVATARS[S.unlocked];S.unlocked++;store.set("unlocked",S.unlocked);unlockHTML=`<div class="unlock pop">${avatarHTML({type:"hist",id:a.id},"sm")}<div><b>🎉 New Legend unlocked: ${a.name}!</b><p>${a.bio}</p></div></div>`}
+ $("resUnlock").innerHTML=unlockHTML;
+ entries.filter(e=>e.did&&e.did!==DID&&!S.friends.some(f=>f.did===e.did)).forEach(e=>{const b=document.createElement("button");b.className="btn sm sun";b.style.margin="12px 6px 0 0";b.textContent=`⭐ Save ${e.name} as a friend`;const rec={did:e.did,name:e.name,av:(NET&&NET.known[e.pid]||{}).av||null};b.onclick=()=>{saveFriend(rec);b.remove()};$("resUnlock").appendChild(b)});
+ showScreen("s-results");sfx.fanfare();confetti();netLeave();
 }
 $("btnCreateRoom").onclick=()=>{document.querySelectorAll("#players input").forEach((inp,i)=>S.players[i].name=inp.value);saveProfile(0,false);savePlayers();sfx.tap();netJoin(makeCode(),true)};
 $("btnJoinRoom").onclick=()=>{const c=$("joinCode").value.trim().toUpperCase();if(c.length!==4){flash("Type the 4-letter code first");return}document.querySelectorAll("#players input").forEach((inp,i)=>S.players[i].name=inp.value);saveProfile(0,false);savePlayers();sfx.tap();netJoin(c,false)};
@@ -1569,13 +1604,12 @@ async function inboxInit(){if(!ONLINE_OK||INBOX||!S.friends.length)return;try{aw
  INBOX=SB.channel("ff-inbox-"+DID);INBOX.on("broadcast",{event:"challenge"},m=>onChallenge((m&&m.payload)||{}));INBOX.subscribe()}
 function onChallenge(p){const f=S.friends.find(x=>x.did===p.fromDid);if(!f||!/^[A-Z0-9]{4}$/.test(p.code||"")||p.code===lastChallenge)return;
  if((R&&R.active)||(B&&B.active)||NET||$("confirmModal").classList.contains("on"))return;lastChallenge=p.code;sfx.streak();
- askConfirm(`🌐 ${f.name} wants a duel!`,"Same flags, same time, on both screens.","Accept ⚔️","Not now",()=>{S.mode="online";store.set("mode","online");renderHome();netJoin(p.code,false)})}
-async function challengeFriend(f){if(!f)return;document.querySelectorAll("#players input").forEach((inp,i)=>S.players[i].name=inp.value);saveProfile(0,false);savePlayers();sfx.tap();
- const code=makeCode();await netJoin(code,true,f);if(!NET||NET.code!==code)return;
- const ch=SB.channel("ff-inbox-"+f.did);NET.callCh=ch;let tries=0;
+ askConfirm(`🌐 ${f.name} wants a duel!`,"Same flags, same time, each on your own screen.","Accept ⚔️","Not now",()=>{S.mode="online";store.set("mode","online");renderHome();netJoin(p.code,false)})}
+async function challengeFriend(f){if(!f)return;document.querySelectorAll("#players input").forEach((inp,i)=>S.players[i].name=inp.value);saveProfile(0,false);savePlayers();sfx.tap();await netJoin(makeCode(),true,f)}
+function pingFriend(f){if(!f||!NET||NET.started||NET.invites[f.did])return;const code=NET.code;const ch=SB.channel("ff-inbox-"+f.did);const inv={ch,t:null,n:0};NET.invites[f.did]=inv;
  ch.subscribe(st=>{if(st!=="SUBSCRIBED"||!NET||NET.code!==code)return;
-  const ping=()=>{if(!NET||NET.code!==code||NET.opp||NET.started||tries++>45){clearInterval(NET&&NET.callT);return}ch.send({type:"broadcast",event:"challenge",payload:{fromDid:DID,fromName:playerName(0),code}})};
-  ping();NET.callT=setInterval(ping,2000)})}
+  const ping=()=>{if(!NET||NET.code!==code||NET.started||inv.n++>45||(NET.peers||[]).some(p=>p.did===f.did)){clearInterval(inv.t);return}ch.send({type:"broadcast",event:"challenge",payload:{fromDid:DID,fromName:playerName(0),code}})};
+  ping();inv.t=setInterval(ping,2000)})}
 $("joinCode").addEventListener("keydown",e=>{if(e.key==="Enter")$("btnJoinRoom").click()});
 
 /* ---------- BOOT ---------- */
@@ -1584,13 +1618,13 @@ function boot(hot){
  S.mode=store.get("mode",S.mode);
  S.custom=store.get("custom",[]);S.profiles=store.get("profiles",[]);S.friends=store.get("friends",[]);
  S.unlocked=Math.min(AVATARS.length,Math.max(STARTER_LEGENDS,store.get("unlocked",STARTER_LEGENDS)|0));
- const ps=store.get("players",null);if(ps&&ps.length===2)S.players=ps.map(p=>({name:p.name||"",avatar:p.avatar}));
- if(hot&&hot.settings){Object.assign(S.settings,hot.settings);if(hot.mode)S.mode=hot.mode;if(hot.players)S.players=hot.players}
+ const ps=store.get("players",null);if(Array.isArray(ps))ps.slice(0,4).forEach((p,i)=>{if(p&&p.avatar)S.players[i]={name:p.name||"",avatar:p.avatar}});
+ if(hot&&hot.settings){Object.assign(S.settings,hot.settings);if(hot.mode)S.mode=hot.mode;if(Array.isArray(hot.players))hot.players.slice(0,4).forEach((p,i)=>{if(p&&p.avatar)S.players[i]=p})}
  S.settings.level=Math.min(LEVELS.length-1,Math.max(0,S.settings.level|0));
  if(S.settings.hist===true&&!store.get("settings",{}).flagset)S.settings.flagset="both";delete S.settings.hist;
  if(!FLAGSETS[S.settings.flagset])S.settings.flagset="modern";if(!SPOT_R[S.settings.spotSize])S.settings.spotSize="m";
  if(!STYLES[S.settings.style])S.settings.style="classic";if(!CONT_GROUPS[S.settings.cont])S.settings.cont="ALL";if(!BONUS[S.settings.bonus])S.settings.bonus="capital";
- if(![10,20,30,50].includes(S.settings.blitzCount))S.settings.blitzCount=20;if(!["two","solo","practice","blitz","online"].includes(S.mode))S.mode="two";
+ if(![10,20,30,50].includes(S.settings.blitzCount))S.settings.blitzCount=20;if(![2,3,4].includes(S.settings.localCount))S.settings.localCount=2;if(!["two","solo","practice","blitz","online"].includes(S.mode))S.mode="two";
  if(!ONLINE_OK){$("modeOnline").hidden=true;if(S.mode==="online")S.mode="two"}
  S.players.forEach(p=>{if(!p.avatar||(p.avatar.type==="hist"&&AVATARS.findIndex(a=>a.id===p.avatar.id)>=S.unlocked))p.avatar={type:"hist",id:AVATARS[0].id}});
  renderHome();showScreen("s-home");inboxInit();
